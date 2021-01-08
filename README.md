@@ -13,7 +13,6 @@
 ![image](https://github.com/tty228/Python-100-Days/blob/master/res/udp_turn_off_3.png)
 
 #### 代码鸣谢
-- [Blinker_WOL.ino](https://post.smzdm.com/p/aoown0g7/) 
+- [帅比一号](https://post.smzdm.com/p/aoown0g7/) 
 - [点灯科技](https://diandeng.tech/home) 
-- [弹窗倒计时](https://www.itsvse.com/thread-4806-1-4.html) 
-
+- [小渣渣](https://www.itsvse.com/thread-4806-1-4.html) 
