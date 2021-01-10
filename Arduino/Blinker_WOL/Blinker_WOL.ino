@@ -1,174 +1,112 @@
-/**********************************************
- * ESP32 + ARDUINO + Blinker + XiaoAi
- * Remote boot by WOL
- * Creater：Faiz
- */
-
 #define BLINKER_WIFI
 #define BLINKER_MIOT_OUTLET
 
 #include <Blinker.h>
 #include <WiFiUdp.h>
 #include <WiFi.h>
+
+//用户自定义变量，将***替换
 char auth[] = "*********"; //密钥
 char ssid[] = "*********"; //wifi名
 char pswd[] = "*********"; //wifi密码
-
-//make magicpacket
-char mac[6]={0x**,0x**,0x**,0x**,0x**,0x**};  //mac地址
+char * ip = "***.***.***.***";//电脑ip地址，如需要群发最后为.255
+byte mac[] = {0x**,0x**,0x**,0x**,0x**,0x**};//唤醒目标电脑的mac
 char pac[102];
-char * Address = "192.168.3.255";//udp adress //群发最后为.255
-int Port = 8080;//udp port
+byte preamble[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};//唤醒包包头数据，无需更改
+int Port = 8080;//udp 广播端口，一般无需更改，除非端口被占用
+char *my_data_to_send = "turn_off_the_computer";//C#程序监听的关机指令
 
-//The udp library class
-WiFiUDP udp;
+WiFiUDP UDP;  //建立一个WiFiUDP对象 UDP
+bool oState = false;//设置初始状态为关机
 
-bool oState = false;
-BlinkerButton Button1("awaking");
+// 新建按钮事件
+BlinkerButton Button1("btn-abc");
 
-//awaking！
-void button1_callback(const String & state)
-{
-   BLINKER_LOG("get button state: ", state);
-   digitalWrite(LED_BUILTIN, HIGH);
-   delay(50);
-   digitalWrite(LED_BUILTIN,LOW);
-   delay(50);
-   pcawaking();
-   digitalWrite(LED_BUILTIN, HIGH);
-   delay(50);
-   digitalWrite(LED_BUILTIN, LOW);
-   delay(50);
-   digitalWrite(LED_BUILTIN, HIGH);
-   delay(50);
-   digitalWrite(LED_BUILTIN, LOW);
-   delay(50);
+void button1_callback(const String & state) {
+  BLINKER_LOG("get button state: ", state);
+  if (state == BLINKER_CMD_ON) {
+    pcawaking();//唤醒电脑
+  } else if (state == BLINKER_CMD_OFF) {
+    pcclose();//关闭电脑
+  }
 }
 
+void pcawaking()
+{
+    UDP.beginPacket(ip, Port); //UDP 发送到目标（IP，端口）
+    UDP.write(preamble, sizeof preamble); //写入包头(FF,FF,FF,FF,FF,FF)
+    for (byte i = 0; i < 16; i++)
+    {
+      UDP.write(mac, sizeof mac);
+    }
+    UDP.endPacket();//发送 UDP 广播
+    digitalWrite(LED_BUILTIN, HIGH);
+    BLINKER_LOG("电脑开了!");
+    Button1.color("#FF0000");//设置app按键是红色
+    Button1.text("关机");
+    Button1.print("on");
+    BlinkerMIOT.powerState("on");
+    BlinkerMIOT.print();
+    oState = true;
+}
 
+void pcclose()
+{
+    UDP.beginPacket(ip, Port);
+    for (int i = 0; i < strlen(my_data_to_send); i++)
+    {
+        UDP.write((uint8_t)my_data_to_send[i]);
+    }
+    UDP.endPacket();//发送 UDP 广播
+    digitalWrite(LED_BUILTIN, LOW);
+    BLINKER_LOG("电脑关了!");
+    Button1.color("#00BB00");//设置app按键是绿色
+    Button1.text("开机");
+    Button1.print("off");
+    BlinkerMIOT.powerState("off");
+    BlinkerMIOT.print();
+    oState = false;
+}
+
+//用户自定义电源类操作的回调函数:
 void miotPowerState(const String & state)
 {
     BLINKER_LOG("need set power state: ", state);
 
     if (state == BLINKER_CMD_ON) {
-        BlinkerMIOT.powerState("on");
-        BlinkerMIOT.print();
-         digitalWrite(LED_BUILTIN, HIGH);
-         delay(25);
-         digitalWrite(LED_BUILTIN, LOW);
-         delay(25);
-         pcawaking();
-         digitalWrite(LED_BUILTIN, HIGH);
-         delay(25);
-         digitalWrite(LED_BUILTIN, LOW);
-         delay(25);
-         digitalWrite(LED_BUILTIN, HIGH);
-         delay(25);
-         digitalWrite(LED_BUILTIN, LOW);
-         oState = false;  //force off！！
+        pcawaking();//唤醒电脑
     }
     else if (state == BLINKER_CMD_OFF) {
-        digitalWrite(LED_BUILTIN, LOW);
-        pcclose();
-        BlinkerMIOT.powerState("off");
-        BlinkerMIOT.print();
-
-        oState = false;
+        pcclose();//关闭电脑
     }
 }
 
+//小爱同学查询接口
 void miotQuery(int32_t queryCode)
 {
-    BLINKER_LOG("MIOT Query codes: ", queryCode);
-
-    switch (queryCode)
-    {
-        case BLINKER_CMD_QUERY_ALL_NUMBER :
-            BLINKER_LOG("MIOT Query All");
-            BlinkerMIOT.powerState(oState ? "on" : "off");
-            BlinkerMIOT.print();
-            break;
-        case BLINKER_CMD_QUERY_POWERSTATE_NUMBER :
-            BLINKER_LOG("MIOT Query Power State");
-            BlinkerMIOT.powerState(oState ? "on" : "off");
-            BlinkerMIOT.print();
-            break;
-        default :
-            BlinkerMIOT.powerState(oState ? "on" : "off");
-            BlinkerMIOT.print();
-            break;
-            
-    }
-        digitalWrite(LED_BUILTIN, HIGH);
-        delay(25);
-        digitalWrite(LED_BUILTIN, LOW);
-        delay(25);
-        digitalWrite(LED_BUILTIN, HIGH);
-        delay(25);
-        digitalWrite(LED_BUILTIN, LOW);
+    BlinkerMIOT.powerState(oState ? "on" : "off");
+    BlinkerMIOT.print();
 }
 
-void pcawaking()
-{
-    int i=0;
-    for(i=0;i<6;i++)
-    {
-      pac[i]=0xFF;
-    }
-    for(i=6;i<102;i+=6)
-    {
-      memcpy(pac+i,mac,6);
-    }
-    udp.beginPacket(Address, Port);
-    udp.write((byte*)pac, 102);//send pac to txbuffer
-    udp.endPacket();//biubiubiu
-}
-
-void pcclose()
-{
-    char *my_data_to_send = "turn_off_the_computer";
-    udp.beginPacket(Address, Port);
-    for (int i = 0; i < strlen(my_data_to_send); i++)
-    {
-        udp.write((uint8_t)my_data_to_send[i]);
-    }
-    if(!udp.endPacket()){
-        Serial.println("data has not been sent");
-    }
-    else{
-        Serial.println("data has been sent");
-    }
-}
-
-void dataRead(const String & data)
-{
-    BLINKER_LOG("Blinker readString: ", data);
-
-    Blinker.vibrate();
-    
-    uint32_t BlinkerTime = millis();
-    
-    Blinker.print("millis", BlinkerTime);
-}
-
+// 初始化
 void setup()
 {
+    // 初始化串口，并开启调试信息，调试用可以删除
     Serial.begin(115200);
     BLINKER_DEBUG.stream(Serial);
 
-    pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, LOW);
-
+     // 初始化blinker
     Blinker.begin(auth, ssid, pswd);
-    Blinker.attachData(dataRead);
-    
-    BlinkerMIOT.attachPowerState(miotPowerState);
-    BlinkerMIOT.attachQuery(miotQuery);
-
     Button1.attach(button1_callback);
+
+    //小爱同学回调函数
+    BlinkerMIOT.attachPowerState(miotPowerState);//注册回调函数
+    BlinkerMIOT.attachQuery(miotQuery);    //语音指令与控制函数对应(查询指令)
 }
 
 void loop()
 {
     Blinker.run();
+   //Blinker.run()语句负责处理Blinker收到的数据，每次运行都会将设备收到的数据进行一次解析。
+   //在使用WiFi接入时，该语句也负责保持网络连接
 }
