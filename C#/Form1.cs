@@ -303,7 +303,7 @@ namespace udp_turn_off
             {
                 turn_off();
             }
-            else
+            else if(t > 0)
             {
                 pc_online();
             }
