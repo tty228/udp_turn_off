@@ -16,7 +16,9 @@ char pac[102];
 byte preamble[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};//唤醒包包头数据，无需更改
 int Port = 8080;//udp 广播端口，一般无需更改，除非端口被占用
 char *my_data_to_send = "turn_off_the_computer";//C#程序监听的关机指令
-
+char *power_status_to_send = "is_the_computer_on?";//查询电脑开机状态
+char packetBuffer[255];  //缓冲区来保存传入的数据包
+unsigned int localUdpPort = 2333; //监听的本地端口
 
 WiFiUDP UDP;  //建立一个WiFiUDP对象 UDP
 bool oState = false;
@@ -68,6 +70,17 @@ void pcclose()
     BlinkerMIOT.powerState("off");
     BlinkerMIOT.print();
     oState = false;
+}
+
+//发送电源状态查询指令
+void status_query()
+{
+    UDP.beginPacket(ip, Port);
+    for (int i = 0; i < strlen(power_status_to_send); i++)
+    {
+        UDP.write((uint8_t)power_status_to_send[i]);
+    }
+    UDP.endPacket();
 }
 
 //小爱同学电源类操作:
@@ -130,7 +143,6 @@ void duerQuery(int32_t queryCode)
     BlinkerMIOT.print();
 }
 
-
 void setup()
 {
     // 初始化串口，并开启调试信息，调试用可以删除
@@ -149,9 +161,25 @@ void setup()
     BlinkerDuerOS.attachPowerState(duerPowerState);      //小度语音电源类操作回调函数
     BlinkerDuerOS.attachQuery(duerQuery);                //小度语音电源类状态查询指令
     //Blinker.attachHeartbeat(heartbeat);//心跳包, 防止取消关机等操作后设备状态不同步，后续再弄
+    delay(1000);
+    UDP.begin(localUdpPort); //启用UDP监听以接收数据
+    status_query();//发送电脑开机状态查询指令
 }
 
 void loop()
 {
     Blinker.run();
+    
+    int packetSize = UDP.parsePacket(); //获取当前队首数据包长度
+  if (packetSize)                     //如果有数据可用
+  {
+    
+    UDP.read(packetBuffer, 255);
+
+    if (strcmp(packetBuffer, "the_computer_is_on") == 0)
+    {
+      pcawaking();//唤醒电脑
+      }
+
+  }
 }

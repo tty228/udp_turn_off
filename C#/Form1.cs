@@ -70,6 +70,7 @@ namespace udp_turn_off
             Thread recvThread = new Thread(RecvMsg);
             recvThread.IsBackground = true;
             recvThread.Start();
+            pc_online();
         }
 
         /// <summary>
@@ -134,6 +135,11 @@ namespace udp_turn_off
                     {
                         countdown();
                     }
+                    else if (msg == "is_the_computer_on?")
+                    {
+                        pc_online();
+                    }
+
                 }
             }
         }
@@ -297,6 +303,10 @@ namespace udp_turn_off
             {
                 turn_off();
             }
+            else
+            {
+                pc_online();
+            }
         }
 
         /// <summary>
@@ -405,6 +415,14 @@ namespace udp_turn_off
             about_box.Show(this);
         }
 
-        
+
+        private void pc_online()
+        {
+            IPEndPoint broadcastIpEndPoint;
+            broadcastIpEndPoint = new IPEndPoint(IPAddress.Broadcast, 2333);
+            UdpClient client = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
+            byte[] buf = Encoding.UTF8.GetBytes("the_computer_is_on");
+            client.Send(buf, buf.Length, broadcastIpEndPoint);
+        }
     }
 }
