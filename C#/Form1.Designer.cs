@@ -62,16 +62,16 @@ namespace udp_turn_off
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(51, 31);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(95, 12);
+            this.label3.Size = new System.Drawing.Size(113, 12);
             this.label3.TabIndex = 9;
-            this.label3.Text = "关机倒计时（s）";
+            this.label3.Text = "关机倒计时 (0-100)";
             // 
             // notifyIcon1
             // 
             this.notifyIcon1.ContextMenuStrip = this.contextMenuStrip1;
             this.notifyIcon1.Text = "小爱UDP关机";
             this.notifyIcon1.Visible = true;
-            this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
+            this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.NotifyIcon1_MouseDoubleClick);
             // 
             // contextMenuStrip1
             // 
@@ -150,7 +150,7 @@ namespace udp_turn_off
             // timer1
             // 
             this.timer1.Interval = 1000;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            this.timer1.Tick += new System.EventHandler(this.Timer1_Tick);
             // 
             // button1
             // 
@@ -160,7 +160,7 @@ namespace udp_turn_off
             this.button1.TabIndex = 10;
             this.button1.Text = "默认设置";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button1.Click += new System.EventHandler(this.Button1_Click);
             // 
             // button2
             // 
@@ -170,7 +170,7 @@ namespace udp_turn_off
             this.button2.TabIndex = 11;
             this.button2.Text = "保存设置";
             this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.button2.Click += new System.EventHandler(this.Button2_Click);
             // 
             // button3
             // 
@@ -180,7 +180,7 @@ namespace udp_turn_off
             this.button3.TabIndex = 12;
             this.button3.Text = "关于";
             this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.button3.Click += new System.EventHandler(this.Button3_Click);
             // 
             // textBox1
             // 
@@ -188,17 +188,17 @@ namespace udp_turn_off
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(100, 21);
             this.textBox1.TabIndex = 13;
-            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
-            this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
+            this.textBox1.TextChanged += new System.EventHandler(this.TextBox1_TextChanged);
+            this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBox1_KeyPress);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(51, 66);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(65, 12);
+            this.label1.Size = new System.Drawing.Size(125, 12);
             this.label1.TabIndex = 14;
-            this.label1.Text = "监听端口号";
+            this.label1.Text = "监听端口号 (0-65535)";
             // 
             // textBox2
             // 
@@ -206,8 +206,8 @@ namespace udp_turn_off
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(100, 21);
             this.textBox2.TabIndex = 15;
-            this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
-            this.textBox2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox2_KeyPress);
+            this.textBox2.TextChanged += new System.EventHandler(this.TextBox2_TextChanged);
+            this.textBox2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBox2_KeyPress);
             // 
             // label2
             // 
