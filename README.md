@@ -59,15 +59,15 @@
 4. 编译上传到esp32开发板（编译成功后屏幕下方出现connect的时候要按一下boot键才能下载。）
 ![](https://github.com/tty228/Python-100-Days/blob/master/res/udp_turn_off_7.jpg)
 
-5. 运行 C# 程序，选中开机启动（可选，为 **远程关机/小爱语音关机 **提供支持）
+5. 运行 C# 程序，选中开机启动（可选，为 **远程关机/小爱语音关机 ** 提供支持）
 
 6. 进入 blinker App，添加按键，数据键名为 “btn-abc”（可选，为 **APP远程开/关机** 提供支持，显示文本不用管，会自动同步设备状态）
 ![](https://github.com/tty228/Python-100-Days/blob/master/res/udp_turn_off_8.jpg)
 
-7. 修改开发板设备名为 “电脑”（可选，为 **小爱语音开/关机 **提供支持）
+7. 修改开发板设备名为 “电脑”（可选，为 **小爱语音开/关机 ** 提供支持）
 ![](https://github.com/tty228/Python-100-Days/blob/master/res/udp_turn_off_9.jpg)
 
-8. 打开米家-我的-其它平台设备-选择点灯科技，进去后绑定账号选择同步设备（可选，为 **小爱语音开/关机 **提供支持）
+8. 打开米家-我的-其它平台设备-选择点灯科技，进去后绑定账号选择同步设备（可选，为 **小爱语音开/关机 ** 提供支持）
 
 #### 代码鸣谢
 - [帅比一号](https://post.smzdm.com/p/aoown0g7/) 
