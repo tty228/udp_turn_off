@@ -21,9 +21,7 @@
 详细步骤参见  [arduino 中文社区](https://www.arduino.cn/thread-83174-1-1.html "arduino中文社区")
 
 1. 下载安装 Arduino IDE
-
 [Arduino 中文社区](https://www.arduino.cn/thread-5838-1-1.html "Arduino 中文社区")
-
 [Arduino 官网](https://www.arduino.cc/en/software "Arduino 官网")
 
 
