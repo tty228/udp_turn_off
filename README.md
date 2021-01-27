@@ -81,6 +81,7 @@
 ![](https://github.com/tty228/Python-100-Days/blob/master/res/udp_turn_off_8.jpg)
 
 7. 修改开发板设备名为 “电脑”（可选，为 **小爱语音开/关机** 提供支持，不需要使用训练计划，训练计划没有反馈语音）
+
 ![](https://github.com/tty228/Python-100-Days/blob/master/res/udp_turn_off_9.jpg)
 
 8. 打开米家-我的-其它平台设备-选择点灯科技，进去后绑定账号选择同步设备（可选，为 **小爱语音开/关机** 提供支持）
