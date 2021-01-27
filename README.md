@@ -40,6 +40,8 @@
 
 [blinker 官网](https://diandeng.tech/doc/sdk-download "blinker 官网")
 
+ 打开 Arduino ，选择 项目-加载库-添加 .zip 库
+
 
 4. 手机安装 blinker app
 
