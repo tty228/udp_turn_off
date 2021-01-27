@@ -27,7 +27,7 @@
 [Arduino 官网](https://www.arduino.cc/en/software "Arduino 官网")
 
 
-2. 安装 esp8266/esp32扩展包
+2. 安装 esp8266/esp32扩展包（**注意你的单片机型号**）
 
 [esp32 SDK](https://www.arduino.cn/thread-81194-1-1.html "esp32 SDK")
 
