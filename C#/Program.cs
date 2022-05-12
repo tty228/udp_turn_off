@@ -33,7 +33,6 @@ namespace udp_turn_off
                 }
             }
             Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
         }
         public static Process RunningInstance()

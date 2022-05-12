@@ -62,7 +62,7 @@ namespace udp_turn_off
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(51, 31);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(113, 12);
+            this.label3.Size = new System.Drawing.Size(146, 15);
             this.label3.TabIndex = 9;
             this.label3.Text = "关机倒计时 (0-100)";
             // 
@@ -75,6 +75,7 @@ namespace udp_turn_off
             // 
             // contextMenuStrip1
             // 
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.关机ToolStripMenuItem,
             this.休眠ToolStripMenuItem,
@@ -86,64 +87,64 @@ namespace udp_turn_off
             this.toolStripSeparator1,
             this.退出ToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(125, 170);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(139, 184);
             // 
             // 关机ToolStripMenuItem
             // 
             this.关机ToolStripMenuItem.Name = "关机ToolStripMenuItem";
-            this.关机ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.关机ToolStripMenuItem.Size = new System.Drawing.Size(138, 24);
             this.关机ToolStripMenuItem.Text = "关机";
             this.关机ToolStripMenuItem.Click += new System.EventHandler(this.关机ToolStripMenuItem_Click);
             // 
             // 休眠ToolStripMenuItem
             // 
             this.休眠ToolStripMenuItem.Name = "休眠ToolStripMenuItem";
-            this.休眠ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.休眠ToolStripMenuItem.Size = new System.Drawing.Size(138, 24);
             this.休眠ToolStripMenuItem.Text = "休眠";
             this.休眠ToolStripMenuItem.Click += new System.EventHandler(this.休眠ToolStripMenuItem_Click);
             // 
             // 睡眠ToolStripMenuItem
             // 
             this.睡眠ToolStripMenuItem.Name = "睡眠ToolStripMenuItem";
-            this.睡眠ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.睡眠ToolStripMenuItem.Size = new System.Drawing.Size(138, 24);
             this.睡眠ToolStripMenuItem.Text = "睡眠";
             this.睡眠ToolStripMenuItem.Click += new System.EventHandler(this.睡眠ToolStripMenuItem_Click);
             // 
             // 锁定ToolStripMenuItem
             // 
             this.锁定ToolStripMenuItem.Name = "锁定ToolStripMenuItem";
-            this.锁定ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.锁定ToolStripMenuItem.Size = new System.Drawing.Size(138, 24);
             this.锁定ToolStripMenuItem.Text = "锁定";
             this.锁定ToolStripMenuItem.Click += new System.EventHandler(this.锁定ToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(121, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(135, 6);
             // 
             // 设置ToolStripMenuItem
             // 
             this.设置ToolStripMenuItem.Name = "设置ToolStripMenuItem";
-            this.设置ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.设置ToolStripMenuItem.Size = new System.Drawing.Size(138, 24);
             this.设置ToolStripMenuItem.Text = "设置";
             this.设置ToolStripMenuItem.Click += new System.EventHandler(this.设置ToolStripMenuItem_Click);
             // 
             // 开机启动ToolStripMenuItem
             // 
             this.开机启动ToolStripMenuItem.Name = "开机启动ToolStripMenuItem";
-            this.开机启动ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.开机启动ToolStripMenuItem.Size = new System.Drawing.Size(138, 24);
             this.开机启动ToolStripMenuItem.Text = "开机启动";
             this.开机启动ToolStripMenuItem.Click += new System.EventHandler(this.开机启动ToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(121, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(135, 6);
             // 
             // 退出ToolStripMenuItem
             // 
             this.退出ToolStripMenuItem.Name = "退出ToolStripMenuItem";
-            this.退出ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.退出ToolStripMenuItem.Size = new System.Drawing.Size(138, 24);
             this.退出ToolStripMenuItem.Text = "退出";
             this.退出ToolStripMenuItem.Click += new System.EventHandler(this.退出ToolStripMenuItem_Click);
             // 
@@ -186,7 +187,7 @@ namespace udp_turn_off
             // 
             this.textBox1.Location = new System.Drawing.Point(194, 28);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(100, 21);
+            this.textBox1.Size = new System.Drawing.Size(100, 25);
             this.textBox1.TabIndex = 13;
             this.textBox1.TextChanged += new System.EventHandler(this.TextBox1_TextChanged);
             this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBox1_KeyPress);
@@ -196,7 +197,7 @@ namespace udp_turn_off
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(51, 66);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(125, 12);
+            this.label1.Size = new System.Drawing.Size(162, 15);
             this.label1.TabIndex = 14;
             this.label1.Text = "监听端口号 (0-65535)";
             // 
@@ -204,7 +205,7 @@ namespace udp_turn_off
             // 
             this.textBox2.Location = new System.Drawing.Point(194, 63);
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(100, 21);
+            this.textBox2.Size = new System.Drawing.Size(100, 25);
             this.textBox2.TabIndex = 15;
             this.textBox2.TextChanged += new System.EventHandler(this.TextBox2_TextChanged);
             this.textBox2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBox2_KeyPress);
@@ -214,7 +215,7 @@ namespace udp_turn_off
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(51, 103);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(77, 12);
+            this.label2.Size = new System.Drawing.Size(97, 15);
             this.label2.TabIndex = 16;
             this.label2.Text = "监听关机指令";
             // 
@@ -222,7 +223,7 @@ namespace udp_turn_off
             // 
             this.textBox3.Location = new System.Drawing.Point(194, 100);
             this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(100, 21);
+            this.textBox3.Size = new System.Drawing.Size(100, 25);
             this.textBox3.TabIndex = 17;
             // 
             // label4
@@ -230,7 +231,7 @@ namespace udp_turn_off
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(51, 142);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(53, 12);
+            this.label4.Size = new System.Drawing.Size(67, 15);
             this.label4.TabIndex = 18;
             this.label4.Text = "关机动作";
             // 
@@ -244,7 +245,7 @@ namespace udp_turn_off
             "锁定"});
             this.comboBox1.Location = new System.Drawing.Point(194, 139);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(100, 20);
+            this.comboBox1.Size = new System.Drawing.Size(100, 23);
             this.comboBox1.TabIndex = 19;
             // 
             // checkBox1
@@ -252,7 +253,7 @@ namespace udp_turn_off
             this.checkBox1.AutoSize = true;
             this.checkBox1.Location = new System.Drawing.Point(53, 176);
             this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(72, 16);
+            this.checkBox1.Size = new System.Drawing.Size(89, 19);
             this.checkBox1.TabIndex = 21;
             this.checkBox1.Text = "开机启动";
             this.checkBox1.UseVisualStyleBackColor = true;

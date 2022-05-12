@@ -8,6 +8,7 @@ using System.Diagnostics;//命名空间关机，重启，注销，锁定，休�
 using System.Runtime.InteropServices;//命名空间关机，重启，注销，锁定，休眠，睡眠
 using System.Net.NetworkInformation;
 using Microsoft.Win32;
+using System.Timers;
 
 namespace udp_turn_off
 {
@@ -72,7 +73,7 @@ namespace udp_turn_off
             recvThread.IsBackground = true;
             recvThread.Start();
             SystemEvents.PowerModeChanged += OnPowerChange; //监听电源改变事件
-            Pc_online();
+            SendMsg("the_computer_is_on");
         }
 
             public Form1()
@@ -103,16 +104,6 @@ namespace udp_turn_off
             return inUse;
         }
 
-        //不卡屏延时，能同时能执行其它任务
-        public static void Sleep(int milliSecond)
-        {
-            int start = Environment.TickCount;
-            while (Math.Abs(Environment.TickCount - start) < milliSecond)
-            {
-                Application.DoEvents();//转让控制权
-            }
-        }
-
         //等待网络可用
         [DllImport("wininet.dll")]
         private static extern bool InternetGetConnectedState(ref int dwFlag, int dwReserved);
@@ -122,8 +113,10 @@ namespace udp_turn_off
             System.Int32 dwFlag = new int();
             while (!InternetGetConnectedState(ref dwFlag, 0))
             {
-                Sleep(100);
+                //Application.DoEvents();
+                Thread.Sleep(1000);
             }
+            Thread.Sleep(1000);
         }
 
         /// <summary>
@@ -150,37 +143,33 @@ namespace udp_turn_off
                     }
                     else if (msg == "is_the_computer_on?")
                     {
-                        Pc_online();
+                        SendMsg("the_computer_is_on");
                     }
 
                 }
             }
         }
 
-        /// <summary>
-        /// UDP 发送信息报告电脑在线
-        /// </summary>
-        private void Pc_online()
-        {
-            Waiting_for_networking();
-            IPEndPoint broadcastIpEndPoint;
-            broadcastIpEndPoint = new IPEndPoint(IPAddress.Broadcast, 2333);
-            UdpClient client = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
-            byte[] buf = Encoding.UTF8.GetBytes("the_computer_is_on");
-            client.Send(buf, buf.Length, broadcastIpEndPoint);
-        }
+        private System.Timers.Timer timer_msg = new System.Timers.Timer();
 
         /// <summary>
-        /// UDP 发送信息报告电脑即将关机
+        /// UDP 发送广播信息
         /// </summary>
-        private void Pc_closing()
+        private void SendMsg(string Msg)
         {
-            Waiting_for_networking();
-            IPEndPoint broadcastIpEndPoint;
-            broadcastIpEndPoint = new IPEndPoint(IPAddress.Broadcast, 2333);
-            UdpClient client = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
-            byte[] buf = Encoding.UTF8.GetBytes("the_computer_is_about_to_shut_down");
-            client.Send(buf, buf.Length, broadcastIpEndPoint);
+            timer_msg.Elapsed += new ElapsedEventHandler(OnTimer); //创建 timer
+            timer_msg.AutoReset = false; //只运行一次
+            timer_msg.Start();
+            void OnTimer(Object source, ElapsedEventArgs e)
+            {
+                Waiting_for_networking(); //等待网络连接
+                IPEndPoint broadcastIpEndPoint;
+                broadcastIpEndPoint = new IPEndPoint(IPAddress.Broadcast, 2333); //广播到 2333 端口
+                UdpClient client = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
+                byte[] buf = Encoding.UTF8.GetBytes(Msg);
+                client.Send(buf, buf.Length, broadcastIpEndPoint);
+                timer_msg.Stop();
+            }
         }
 
         /// <summary>
@@ -191,11 +180,10 @@ namespace udp_turn_off
             switch (e.Mode)
             {
                 case PowerModes.Resume:
-                    Sleep(10000);
-                    Pc_online();
+                    SendMsg("the_computer_is_on");
                     break;
                 case PowerModes.Suspend:
-                    Pc_closing();
+                    SendMsg("the_computer_is_about_to_shut_down");
                     break;
             }
         }
@@ -287,7 +275,7 @@ namespace udp_turn_off
             }
             else if (t > 0)
             {
-                Pc_online();
+                SendMsg("the_computer_is_on");
             }
         }
 
@@ -352,8 +340,7 @@ namespace udp_turn_off
         /// </summary>
         private void 退出ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.Dispose();
-            this.Close();
+            Environment.Exit(0);
         }
 
         /// <summary>
@@ -379,7 +366,7 @@ namespace udp_turn_off
             //判断是否为 windows 关闭事件
             if (e.CloseReason==CloseReason.WindowsShutDown)
             {
-                Pc_closing();
+                SendMsg("the_computer_is_about_to_shut_down");
             }
         }
 
@@ -487,7 +474,6 @@ namespace udp_turn_off
         {
             AboutBox1 about_box = new AboutBox1();
             about_box.Show(this);
-            Waiting_for_networking();
         }
     }
 }
