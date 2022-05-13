@@ -1,14 +1,18 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
+using System.Collections;
+using System.Configuration.Install;
+using System.Diagnostics;//命名空间关机，重启，注销，锁定，休眠，睡眠
+using System.IO;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;//命名空间关机，重启，注销，锁定，休眠，睡眠
+using System.ServiceProcess;
 using System.Text;
 using System.Threading;
-using System.Windows.Forms;
-using System.Diagnostics;//命名空间关机，重启，注销，锁定，休眠，睡眠
-using System.Runtime.InteropServices;//命名空间关机，重启，注销，锁定，休眠，睡眠
-using System.Net.NetworkInformation;
-using Microsoft.Win32;
 using System.Timers;
+using System.Windows.Forms;
 
 namespace udp_turn_off
 {
@@ -24,23 +28,27 @@ namespace udp_turn_off
             InitializeComponent();
             frm1 = this;//一个类中调用另一个窗体的控件
         }
+
         private void Form1_Load(object sender, EventArgs e)
         {
             Icon = Properties.Resources._001;
             notifyIcon1.Icon = Properties.Resources._001;
-            this.BeginInvoke(new Action(() => {this.Hide();this.Opacity = 1;}));//隐藏窗口并透明化
+            EnableElevateIcon_BCM_SETSHIELD(button4);
+
+            if (this.IsServiceExisted(serviceName)) this.ServiceStop(serviceName); //停止服务避免端口冲突
 
             //初始化设置
-            if (Regedit.Read("Software\\tty228\\udp_turn_off", "countdown") == "" || Regedit.Read("Software\\tty228\\udp_turn_off", "port") == "" || Regedit.Read("Software\\tty228\\udp_turn_off", "msg") == "" || Regedit.Read("Software\\tty228\\udp_turn_off", "Shutdown_Options") == "")
+            if (Regedit.Read("Software\\tty228\\udp_turn_off", "countdown", "") == "" || Regedit.Read("Software\\tty228\\udp_turn_off", "port", "") == "" || Regedit.Read("Software\\tty228\\udp_turn_off", "msg", "") == "" || Regedit.Read("Software\\tty228\\udp_turn_off", "Shutdown_Options", "") == "")
             {
-                Button1_Click(null,null);
+                Button1_Click(null, null);
+                Button2_Click(null, null);
             }
             else
             {
-                textBox1.Text = Regedit.Read("Software\\tty228\\udp_turn_off", "countdown");
-                textBox2.Text = Regedit.Read("Software\\tty228\\udp_turn_off", "port");
-                textBox3.Text = Regedit.Read("Software\\tty228\\udp_turn_off", "msg");
-                switch (Regedit.Read("Software\\tty228\\udp_turn_off", "Shutdown_Options"))
+                textBox1.Text = Regedit.Read("Software\\tty228\\udp_turn_off", "countdown", "");
+                textBox2.Text = Regedit.Read("Software\\tty228\\udp_turn_off", "port", "");
+                textBox3.Text = Regedit.Read("Software\\tty228\\udp_turn_off", "msg", "");
+                switch (Regedit.Read("Software\\tty228\\udp_turn_off", "Shutdown_Options", ""))
                 {
                     case "shutdown":
                         关机ToolStripMenuItem_Click(null, null);
@@ -58,7 +66,7 @@ namespace udp_turn_off
                         关机ToolStripMenuItem_Click(null, null);
                         break;
                 }
-                if (Regedit.Read("Software\\Microsoft\\Windows\\CurrentVersion\\Run", "udp_turn_off") == "")
+                if (Regedit.Read("Software\\Microsoft\\Windows\\CurrentVersion\\Run", "udp_turn_off", "") == "")
                 {
                     checkBox1.Checked = false;
                     开机启动ToolStripMenuItem.Checked = false;
@@ -68,15 +76,28 @@ namespace udp_turn_off
                     checkBox1.Checked = true;
                     开机启动ToolStripMenuItem.Checked = true;
                 }
+
             }
+
+            if (PortInUse(int.Parse(textBox2.Text)) == true)
+            {
+                MessageBox.Show("通常每个套接字地址(协议/网络地址/端口)只允许使用一次。\n\n请重新设置。", "端口被占用");
+                this.Opacity = 100;
+            }
+            else
+            {
+                this.BeginInvoke(new Action(() => { this.Hide(); this.Opacity = 1; }));//隐藏窗口并透明化
+            }
+            //监听 UDP 端口
             Thread recvThread = new Thread(RecvMsg);
             recvThread.IsBackground = true;
             recvThread.Start();
+
             SystemEvents.PowerModeChanged += OnPowerChange; //监听电源改变事件
             SendMsg("the_computer_is_on");
         }
 
-            public Form1()
+        public Form1()
         {
             CheckForIllegalCrossThreadCalls = false;
             InitializeComponent();
@@ -106,9 +127,9 @@ namespace udp_turn_off
 
         //等待网络可用
         [DllImport("wininet.dll")]
-        private static extern bool InternetGetConnectedState(ref int dwFlag, int dwReserved);
+        public static extern bool InternetGetConnectedState(ref int dwFlag, int dwReserved);
 
-        private void Waiting_for_networking()
+        public void Waiting_for_networking()
         {
             System.Int32 dwFlag = new int();
             while (!InternetGetConnectedState(ref dwFlag, 0))
@@ -124,12 +145,7 @@ namespace udp_turn_off
         /// </summary>
         private void RecvMsg()
         {
-            if (PortInUse(int.Parse(textBox2.Text)) == true)
-            {
-                MessageBox.Show("通常每个套接字地址(协议/网络地址/端口)只允许使用一次。\n\n请重新设置。", "端口被占用");
-                NotifyIcon1_MouseDoubleClick(null,null);
-            }
-            else
+            if (PortInUse(int.Parse(textBox2.Text)) == false)
             {
                 UdpClient recvClient = new UdpClient(new IPEndPoint(IPAddress.Any, int.Parse(textBox2.Text)));//接收方的IP
                 while (1 == 1)
@@ -155,7 +171,7 @@ namespace udp_turn_off
         /// <summary>
         /// UDP 发送广播信息
         /// </summary>
-        private void SendMsg(string Msg)
+        public void SendMsg(string Msg)
         {
             timer_msg.Elapsed += new ElapsedEventHandler(OnTimer); //创建 timer
             timer_msg.AutoReset = false; //只运行一次
@@ -248,6 +264,7 @@ namespace udp_turn_off
             t = t - 1;
             SetWindowText(hwnd, "系统将于" + t.ToString() + "秒后关机");
             SetWindowPos(hwnd, HWND_TOPMOST, 1, 1, 1, 1, SWP_NOMOVE | SWP_NOSIZE);
+
             if (hwnd == IntPtr.Zero && t != 0)//如果窗口已经关闭
             {
                 timer1.Enabled = false;
@@ -286,7 +303,8 @@ namespace udp_turn_off
             睡眠ToolStripMenuItem.Checked = false;
             锁定ToolStripMenuItem.Checked = false;
             comboBox1.Text = "关机";
-            Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "shutdown");
+            Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "shutdown", "");
+            Regedit.Save("Software\\WOW6432Node\\\tty228\\udp_turn_off", "Shutdown_Options", "shutdown", "LocalMachine");
         }
 
         private void 休眠ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -296,7 +314,8 @@ namespace udp_turn_off
             睡眠ToolStripMenuItem.Checked = false;
             锁定ToolStripMenuItem.Checked = false;
             comboBox1.Text = "休眠";
-            Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "dormancy");
+            Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "dormancy", "");
+            Regedit.Save("Software\\WOW6432Node\\\tty228\\udp_turn_off", "Shutdown_Options", "dormancy", "LocalMachine");
         }
 
         private void 睡眠ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -306,7 +325,8 @@ namespace udp_turn_off
             睡眠ToolStripMenuItem.Checked = true;
             锁定ToolStripMenuItem.Checked = false;
             comboBox1.Text = "睡眠";
-            Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "sleep");
+            Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "sleep", "");
+            Regedit.Save("Software\\WOW6432Node\\\tty228\\udp_turn_off", "Shutdown_Options", "sleep", "LocalMachine");
         }
 
         private void 锁定ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -316,7 +336,7 @@ namespace udp_turn_off
             睡眠ToolStripMenuItem.Checked = false;
             锁定ToolStripMenuItem.Checked = true;
             comboBox1.Text = "锁定";
-            Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "LockWorkStation");
+            Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "LockWorkStation", "");
         }
 
         private void 开机启动ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -325,13 +345,13 @@ namespace udp_turn_off
             {
                 checkBox1.Checked = true;
                 开机启动ToolStripMenuItem.Checked = true;
-                Regedit.Save("Software\\Microsoft\\Windows\\CurrentVersion\\Run", "udp_turn_off", Process.GetCurrentProcess().MainModule.FileName);
+                Regedit.Save("Software\\Microsoft\\Windows\\CurrentVersion\\Run", "udp_turn_off", Process.GetCurrentProcess().MainModule.FileName, "");
             }
             else
             {
                 checkBox1.Checked = false;
                 开机启动ToolStripMenuItem.Checked = false;
-                Regedit.Delete("Software\\Microsoft\\Windows\\CurrentVersion\\Run", "udp_turn_off");
+                Regedit.Delete("Software\\Microsoft\\Windows\\CurrentVersion\\Run", "udp_turn_off", "");
             }
         }
 
@@ -343,12 +363,32 @@ namespace udp_turn_off
             Environment.Exit(0);
         }
 
+        // 设置此窗体为活动窗体：
+        // 将创建指定窗口的线程带到前台并激活该窗口。键盘输入直接指向窗口，并为用户更改各种视觉提示。
+        // 系统为创建前台窗口的线程分配的优先级略高于其他线程。
+        [DllImport("user32.dll", EntryPoint = "SetForegroundWindow")]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        // 设置此窗体为活动窗体：
+        // 激活窗口。窗口必须附加到调用线程的消息队列。
+        [DllImport("user32.dll", EntryPoint = "SetActiveWindow")]
+        public static extern IntPtr SetActiveWindow(IntPtr hWnd);
+
         /// <summary>
         /// 双击托盘显示设置窗体
         /// </summary>
         private void NotifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            this.Visible = true; this.Opacity = 100;
+            this.Opacity = 100;
+            this.Show();
+            if (this.IsServiceExisted(serviceName))
+            {
+                button4.Text = "关闭服务";
+            }
+            else
+            {
+                button4.Text = "注册为服务";
+            }
         }
         private void 设置ToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -358,13 +398,12 @@ namespace udp_turn_off
         //窗体关闭事件
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            //点击关闭时最小化到托盘
-            this.WindowState = FormWindowState.Minimized;
+
             e.Cancel = true;
-            this.BeginInvoke(new Action(() => { this.Hide(); this.Opacity = 1; }));//隐藏窗口并透明化
+            this.Hide();
 
             //判断是否为 windows 关闭事件
-            if (e.CloseReason==CloseReason.WindowsShutDown)
+            if (e.CloseReason == CloseReason.WindowsShutDown)
             {
                 SendMsg("the_computer_is_about_to_shut_down");
             }
@@ -439,9 +478,13 @@ namespace udp_turn_off
         /// </summary>
         private void Button2_Click(object sender, EventArgs e)
         {
-            Regedit.Save("Software\\tty228\\udp_turn_off", "countdown", textBox1.Text);
-            Regedit.Save("Software\\tty228\\udp_turn_off", "port", textBox2.Text);
-            Regedit.Save("Software\\tty228\\udp_turn_off", "msg", textBox3.Text);
+            Regedit.Save("Software\\tty228\\udp_turn_off", "countdown", textBox1.Text, "");
+            Regedit.Save("Software\\tty228\\udp_turn_off", "port", textBox2.Text, "");
+            Regedit.Save("Software\\tty228\\udp_turn_off", "msg", textBox3.Text, "");
+
+            Regedit.Save(@"Software\\WOW6432Node\\\tty228\\udp_turn_off", "port", textBox2.Text, "LocalMachine");
+            Regedit.Save(@"Software\\WOW6432Node\\\tty228\\udp_turn_off", "msg", textBox3.Text, "LocalMachine");
+
             switch (comboBox1.Text)
             {
                 case "关机":
@@ -474,6 +517,174 @@ namespace udp_turn_off
         {
             AboutBox1 about_box = new AboutBox1();
             about_box.Show(this);
+        }
+        string serviceFolderPath = @"C:\Program Files\udp_turn_off\";
+        string serviceFilePath = @"C:\Program Files\udp_turn_off\udp_turn_off_Service.exe";
+        string serviceName = "udp_turn_off_Service";
+
+        //判断服务是否存在
+        private bool IsServiceExisted(string serviceName)
+        {
+            ServiceController[] services = ServiceController.GetServices();
+            foreach (ServiceController sc in services)
+            {
+                if (sc.ServiceName.ToLower() == serviceName.ToLower())
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        //安装服务
+        private void InstallService(string serviceFilePath)
+        {
+            using (AssemblyInstaller installer = new AssemblyInstaller())
+            {
+                installer.UseNewContext = true;
+                installer.Path = serviceFilePath;
+                IDictionary savedState = new Hashtable();
+                installer.Install(savedState);
+                installer.Commit(savedState);
+            }
+        }
+
+        //卸载服务
+        private void UninstallService(string serviceFilePath)
+        {
+            string Path = Regedit.Read("SYSTEM\\CurrentControlSet\\Services\\udp_turn_off_Service", "ImagePath", "LocalMachine");
+            string newstr = Path.Replace("\"", "");
+            using (AssemblyInstaller installer = new AssemblyInstaller())
+            {
+                installer.UseNewContext = true;
+                installer.Path = newstr;
+                installer.Uninstall(null);
+            }
+        }
+        //启动服务
+        private void ServiceStart(string serviceName)
+        {
+            using (ServiceController control = new ServiceController(serviceName))
+            {
+                if (control.Status == ServiceControllerStatus.Stopped)
+                {
+                    control.Start();
+                }
+            }
+        }
+
+        //停止服务
+        private void ServiceStop(string serviceName)
+        {
+            using (ServiceController control = new ServiceController(serviceName))
+            {
+                if (control.Status == ServiceControllerStatus.Running)
+                {
+                    control.Stop();
+                }
+            }
+        }
+
+        //注册服务
+        private void Enable_Service()
+        {
+            //导出嵌入的资源
+            byte[] res;//创建byte数组，装资源
+            res = new byte[Properties.Resources.udp_turn_off_Service.Length];//确定数组大小。
+            Properties.Resources.udp_turn_off_Service.CopyTo(res, 0);//将资源导入byte数组中
+            if (!Directory.Exists(serviceFolderPath)) Directory.CreateDirectory(serviceFolderPath);//创建该文件夹
+            FileStream fs = new FileStream(serviceFilePath, FileMode.Create, FileAccess.Write);
+            fs.Write(res, 0, res.Length);
+            fs.Close();
+
+            //安装服务
+            if (this.IsServiceExisted(serviceName))
+            {
+                this.ServiceStop(serviceName);
+                this.UninstallService(serviceFilePath);
+            }
+            this.InstallService(serviceFilePath);
+
+            //启动服务
+            //if (this.IsServiceExisted(serviceName)) this.ServiceStart(serviceName);
+        }
+        //删除文件夹
+        static void DeleteDirectory(string path)
+        {
+            // 如果文件夹存在则进入目录下
+            if (Directory.Exists(path))
+            {
+                foreach (string p in Directory.GetFileSystemEntries(path))// 返回所有文件及目录
+                {
+                    if (File.Exists(p))
+                    {
+                        File.Delete(p);// 删除文件
+                    }
+                    else
+                    {
+                        DeleteDirectory(p);// 删除子目录
+                    }
+                }
+                Directory.Delete(path, true);// 删除当前空目录
+            }
+        }
+        //禁用并删除服务
+        private void Disable_Service()
+        {
+            //停止服务
+            if (this.IsServiceExisted(serviceName)) this.ServiceStop(serviceName);
+
+            //卸载服务
+            if (this.IsServiceExisted(serviceName))
+            {
+                this.ServiceStop(serviceName);
+                this.UninstallService(serviceFilePath);
+            }
+            //被程序自身锁定，无法删除，待修改
+            //DeleteDirectory(serviceFolderPath);
+            Application.Restart();
+        }
+
+        // 给 UAC 添加小盾牌
+        private void EnableElevateIcon_BCM_SETSHIELD(Button ThisButton)
+        {
+            // Input validation, validate that ThisControl is not null
+            if (ThisButton == null)
+            {
+                return;
+            }
+
+            // Define BCM_SETSHIELD locally, declared originally in Commctrl.h
+            uint BCM_SETSHIELD = 0x0000160C;
+
+            // Set button style to the system style
+            ThisButton.FlatStyle = FlatStyle.System;
+
+            // Send the BCM_SETSHIELD message to the button control
+            SendMessage(new System.Runtime.InteropServices.HandleRef(ThisButton, ThisButton.Handle), BCM_SETSHIELD, new IntPtr(0), new IntPtr(1));
+        }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(System.Runtime.InteropServices.HandleRef hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            if (this.IsServiceExisted(serviceName))
+            {
+                Disable_Service();
+                MessageBox.Show("服务已关闭");
+                button4.Text = "注册为服务";
+                checkBox1.Checked = false;
+                开机启动ToolStripMenuItem.Checked = false;
+            }
+            else
+            {
+                Enable_Service();
+                MessageBox.Show("服务已注册");
+                button4.Text = "关闭服务";
+                checkBox1.Checked = true;
+                开机启动ToolStripMenuItem.Checked = true;
+            }
         }
     }
 }

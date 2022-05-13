@@ -5,7 +5,6 @@
 
 #include <Blinker.h>                                           //点灯科技
 #include <WiFiUdp.h>                                           //udp 广播
-#include <Ticker.h>                                            //定时器
 
 // 用户自定义变量，将***替换
 char auth[] = "*********";                                     //点灯科技密钥，需要使用阿里云通信，否则会提示无法连接
@@ -26,10 +25,9 @@ int localUdpPort = 2333;                                       //监听的本地
 byte preamble[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};        //唤醒包包头数据，无需更改
 char *my_data_to_send = "turn_off_the_computer";               //C#程序监听的关机指令
 char *power_status_to_send = "is_the_computer_on?";            //查询电脑开机状态
-int count = 0;                                                 //初始化变量-检测关机是否成功的发包次数（因无法检测用户是否取消关机，通过每 10s 一个包检测通信状态）
+int count = 1;                                                 //初始化变量-检测关机是否成功的发包次数（因无法检测用户是否取消关机，通过每 10s 一个包检测通信状态）
 bool oState = false;                                           //初始化开关状态为关
 
-Ticker ticker;                                                 //声明 Ticker 对象
 WiFiUDP UDP;                                                   //建立一个 WiFiUDP 对象 UDP
 BlinkerButton Button1("btn-abc");                              //新建组件对象
 
@@ -104,11 +102,15 @@ void status_query()
     UDP.write((uint8_t)power_status_to_send[i]);
   }
   UDP.endPacket();                                             //发送
-  ++count;
+  if (count != 0)
+  {
+    ++count;
+  }
   if (count >= 10)
   {
-    ticker.detach();                                           //关闭定时器
+    count=0;
   }
+  BLINKER_LOG("count: ", count);
 }
 
 // 电源类操作
@@ -209,6 +211,7 @@ void setup()
 // 循环
 void loop()
 {
+  delay(1000);
   Blinker.run();                                               //负责处理Blinker收到的数据，每次运行都会将设备收到的数据进行一次解析。在使用WiFi接入时，该语句也负责保持网络连接
 
   int packetSize = UDP.parsePacket();                          //获取当前队首数据包长度
@@ -221,10 +224,14 @@ void loop()
     }
     else if(strcmp(packetBuffer, "the_computer_is_about_to_shut_down") == 0)
     {
-      count = 0;
-      ticker.attach(10, status_query);                          //启动定时器，每 10s 发送一次心跳包，检测是否取消关机
+      count = 1;
+      closed();                                                  //设置电源状态为关闭
     }
     heartbeat();
     for (int i = 0; i < packetSize; i++)packetBuffer[i] = 0;    //清空缓存区，避免接收数据出错
+  }
+  if (count != 0)
+  {
+    status_query();                                              //发送电脑开机状态查询指令
   }
 }
