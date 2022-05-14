@@ -13,6 +13,8 @@ namespace udp_turn_off
         [STAThread]
         static void Main(string[] args)
         {
+            LoadResoureDll.RegistDLL();
+
             //如果有参数就忽略
             //禁止多开
             if (args.Length == 0)
