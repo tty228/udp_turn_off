@@ -35,7 +35,7 @@ namespace udp_turn_off
             notifyIcon1.Icon = Properties.Resources._001;
             EnableElevateIcon_BCM_SETSHIELD(button4);
 
-            if (this.IsServiceExisted(serviceName)) this.ServiceStop(serviceName); //停止服务避免端口冲突
+            if (this.IsServiceExisted(serviceName) && this.ServiceIsRunning(serviceName)) this.ServiceStop(serviceName);
 
             //初始化设置
             if (Regedit.Read("Software\\tty228\\udp_turn_off", "countdown", "") == "" || Regedit.Read("Software\\tty228\\udp_turn_off", "port", "") == "" || Regedit.Read("Software\\tty228\\udp_turn_off", "msg", "") == "" || Regedit.Read("Software\\tty228\\udp_turn_off", "Shutdown_Options", "") == "")
@@ -77,6 +77,14 @@ namespace udp_turn_off
                     开机启动ToolStripMenuItem.Checked = true;
                 }
 
+                if (!this.IsServiceExisted(serviceName)) DeleteDirectory(serviceFolderPath);
+
+            }
+
+            for (int i = 1; i < 100; i++)
+            {
+                if (PortInUse(int.Parse(textBox2.Text)) == false) i = 100;
+                Thread.Sleep(100);
             }
 
             if (PortInUse(int.Parse(textBox2.Text)) == true)
@@ -127,9 +135,9 @@ namespace udp_turn_off
 
         //等待网络可用
         [DllImport("wininet.dll")]
-        public static extern bool InternetGetConnectedState(ref int dwFlag, int dwReserved);
+        private static extern bool InternetGetConnectedState(ref int dwFlag, int dwReserved);
 
-        public void Waiting_for_networking()
+        private void Waiting_for_networking()
         {
             System.Int32 dwFlag = new int();
             while (!InternetGetConnectedState(ref dwFlag, 0))
@@ -304,7 +312,7 @@ namespace udp_turn_off
             锁定ToolStripMenuItem.Checked = false;
             comboBox1.Text = "关机";
             Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "shutdown", "");
-            Regedit.Save("Software\\WOW6432Node\\\tty228\\udp_turn_off", "Shutdown_Options", "shutdown", "LocalMachine");
+            Regedit.Save("Software\\WOW6432Node\\tty228\\udp_turn_off", "Shutdown_Options", "shutdown", "LocalMachine");
         }
 
         private void 休眠ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -315,7 +323,7 @@ namespace udp_turn_off
             锁定ToolStripMenuItem.Checked = false;
             comboBox1.Text = "休眠";
             Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "dormancy", "");
-            Regedit.Save("Software\\WOW6432Node\\\tty228\\udp_turn_off", "Shutdown_Options", "dormancy", "LocalMachine");
+            Regedit.Save("Software\\WOW6432Node\\tty228\\udp_turn_off", "Shutdown_Options", "dormancy", "LocalMachine");
         }
 
         private void 睡眠ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -326,7 +334,7 @@ namespace udp_turn_off
             锁定ToolStripMenuItem.Checked = false;
             comboBox1.Text = "睡眠";
             Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "sleep", "");
-            Regedit.Save("Software\\WOW6432Node\\\tty228\\udp_turn_off", "Shutdown_Options", "sleep", "LocalMachine");
+            Regedit.Save("Software\\WOW6432Node\\tty228\\udp_turn_off", "Shutdown_Options", "sleep", "LocalMachine");
         }
 
         private void 锁定ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -482,8 +490,8 @@ namespace udp_turn_off
             Regedit.Save("Software\\tty228\\udp_turn_off", "port", textBox2.Text, "");
             Regedit.Save("Software\\tty228\\udp_turn_off", "msg", textBox3.Text, "");
 
-            Regedit.Save(@"Software\\WOW6432Node\\\tty228\\udp_turn_off", "port", textBox2.Text, "LocalMachine");
-            Regedit.Save(@"Software\\WOW6432Node\\\tty228\\udp_turn_off", "msg", textBox3.Text, "LocalMachine");
+            Regedit.Save(@"Software\\WOW6432Node\\tty228\\udp_turn_off", "port", textBox2.Text, "LocalMachine");
+            Regedit.Save(@"Software\\WOW6432Node\\tty228\\udp_turn_off", "msg", textBox3.Text, "LocalMachine");
 
             switch (comboBox1.Text)
             {
@@ -522,13 +530,34 @@ namespace udp_turn_off
         string serviceFilePath = @"C:\Program Files\udp_turn_off\udp_turn_off_Service.exe";
         string serviceName = "udp_turn_off_Service";
 
-        //判断服务是否存在
+        /// <summary>
+        /// 判断服务是否存在
+        /// </summary>
+        /// <param name="serviceName">要判断的Windows服务名称</param>
+        /// <returns>存在返回true，否则返回false</returns>
         private bool IsServiceExisted(string serviceName)
         {
             ServiceController[] services = ServiceController.GetServices();
             foreach (ServiceController sc in services)
             {
                 if (sc.ServiceName.ToLower() == serviceName.ToLower())
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 判断服务是否运行
+        /// </summary>
+        /// <param name="serviceName">要判断的Windows服务名称</param>
+        /// <returns>处于运行状态返回true，否则返回false</returns>
+        private bool ServiceIsRunning(string serviceName)
+        {
+            using (ServiceController control = new ServiceController(serviceName))
+            {
+                if (control.Status == ServiceControllerStatus.Running)
                 {
                     return true;
                 }
@@ -597,6 +626,9 @@ namespace udp_turn_off
             fs.Write(res, 0, res.Length);
             fs.Close();
 
+            //复制自身到指定文件夹,提供程序集支持
+            File.Copy(Application.ExecutablePath, serviceFolderPath + @"小爱UDP关机.exe", true);
+
             //安装服务
             if (this.IsServiceExisted(serviceName))
             {
@@ -608,6 +640,21 @@ namespace udp_turn_off
             //启动服务
             //if (this.IsServiceExisted(serviceName)) this.ServiceStart(serviceName);
         }
+
+        //禁用并删除服务
+        private void Disable_Service()
+        {
+            //停止服务
+            if (this.IsServiceExisted(serviceName)) this.ServiceStop(serviceName);
+
+            //卸载服务
+            if (this.IsServiceExisted(serviceName))
+            {
+                this.ServiceStop(serviceName);
+                this.UninstallService(serviceFilePath);
+            }
+        }
+
         //删除文件夹
         static void DeleteDirectory(string path)
         {
@@ -627,22 +674,6 @@ namespace udp_turn_off
                 }
                 Directory.Delete(path, true);// 删除当前空目录
             }
-        }
-        //禁用并删除服务
-        private void Disable_Service()
-        {
-            //停止服务
-            if (this.IsServiceExisted(serviceName)) this.ServiceStop(serviceName);
-
-            //卸载服务
-            if (this.IsServiceExisted(serviceName))
-            {
-                this.ServiceStop(serviceName);
-                this.UninstallService(serviceFilePath);
-            }
-            //被程序自身锁定，无法删除，待修改
-            //DeleteDirectory(serviceFolderPath);
-            Application.Restart();
         }
 
         // 给 UAC 添加小盾牌
@@ -676,6 +707,7 @@ namespace udp_turn_off
                 button4.Text = "注册为服务";
                 checkBox1.Checked = false;
                 开机启动ToolStripMenuItem.Checked = false;
+                Button2_Click(null, null);
             }
             else
             {
@@ -684,6 +716,7 @@ namespace udp_turn_off
                 button4.Text = "关闭服务";
                 checkBox1.Checked = true;
                 开机启动ToolStripMenuItem.Checked = true;
+                Button2_Click(null, null);
             }
         }
     }

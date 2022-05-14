@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E14AC631-0F2F-4197-8A5B-00E2812205EB}</ProjectGuid>
+    <ProjectGuid>{60D12A3B-C477-4019-A9A5-0F88DC792153}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>udp_turn_off_Service</RootNamespace>
     <AssemblyName>udp_turn_off_Service</AssemblyName>
@@ -66,15 +66,15 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ProjectInstaller.resx">
-      <DependentUpon>ProjectInstaller.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\C#\udp_turn_off.csproj">
+    <ProjectReference Include="..\udp_turn_off.csproj">
       <Project>{5f0c4ef2-133b-46d6-918d-5f711f7b1f30}</Project>
       <Name>udp_turn_off</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ProjectInstaller.resx">
+      <DependentUpon>ProjectInstaller.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -41,6 +41,9 @@ namespace udp_turn_off_Service
             string Reg_port = Regedit.Read(@"SOFTWARE\\tty228\\udp_turn_off", "port", "LocalMachine");
             string Reg_msg = Regedit.Read(@"SOFTWARE\\tty228\\udp_turn_off", "msg", "LocalMachine");
             string Reg_Shutdown_Options = Regedit.Read(@"SOFTWARE\\tty228\\udp_turn_off", "Shutdown_Options", "LocalMachine");
+            //Form1.SendMsg(Reg_port);
+            //Form1.SendMsg(Reg_msg);
+            //Form1.SendMsg(Reg_Shutdown_Options);
 
             UdpClient recvClient = new UdpClient(new IPEndPoint(IPAddress.Any, int.Parse(Reg_port)));//接收方的IP
             while (1 == 1)
@@ -53,14 +56,17 @@ namespace udp_turn_off_Service
                     if (Reg_Shutdown_Options == "shutdown")
                     {
                         Process.Start("shutdown", "/s /t 0");
+                        //Form1.SendMsg("shutdown_the_pc");
                     }
                     if (Reg_Shutdown_Options == "dormancy")
                     {
                         SetSuspendState(true, true, true);
+                        //Form1.SendMsg("dormancy_the_pc");
                     }
                     if (Reg_Shutdown_Options == "sleep")
                     {
                         SetSuspendState(false, true, true);
+                        //Form1.SendMsg("sleep_the_pc");
                     }
                 }
                 else if (msg == "is_the_computer_on?")

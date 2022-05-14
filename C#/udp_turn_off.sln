@@ -5,7 +5,7 @@ VisualStudioVersion = 17.2.32505.173
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "udp_turn_off", "udp_turn_off.csproj", "{5F0C4EF2-133B-46D6-918D-5F711F7B1F30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "udp_turn_off_Service", "..\udp_turn_off_Service\udp_turn_off_Service.csproj", "{E14AC631-0F2F-4197-8A5B-00E2812205EB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "udp_turn_off_Service", "udp_turn_off_Service\udp_turn_off_Service.csproj", "{60D12A3B-C477-4019-A9A5-0F88DC792153}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{5F0C4EF2-133B-46D6-918D-5F711F7B1F30}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F0C4EF2-133B-46D6-918D-5F711F7B1F30}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F0C4EF2-133B-46D6-918D-5F711F7B1F30}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E14AC631-0F2F-4197-8A5B-00E2812205EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E14AC631-0F2F-4197-8A5B-00E2812205EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E14AC631-0F2F-4197-8A5B-00E2812205EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E14AC631-0F2F-4197-8A5B-00E2812205EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60D12A3B-C477-4019-A9A5-0F88DC792153}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60D12A3B-C477-4019-A9A5-0F88DC792153}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60D12A3B-C477-4019-A9A5-0F88DC792153}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60D12A3B-C477-4019-A9A5-0F88DC792153}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

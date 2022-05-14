@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // 有关程序集的一般信息由以下
@@ -19,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // 如果此项目向 COM 公开，则下列 GUID 用于类型库的 ID
-[assembly: Guid("e14ac631-0f2f-4197-8a5b-00e2812205eb")]
+[assembly: Guid("60d12a3b-c477-4019-a9a5-0f88dc792153")]
 
 // 程序集的版本信息由下列四个值组成: 
 //
