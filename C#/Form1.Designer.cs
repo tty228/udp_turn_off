@@ -97,7 +97,7 @@ namespace udp_turn_off
             this.toolStripSeparator1,
             this.退出ToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 182);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(173, 160);
             // 
             // 关机选项ToolStripMenuItem
             // 
@@ -107,7 +107,7 @@ namespace udp_turn_off
             this.ToolStripMenuItem_dormancy,
             this.ToolStripMenuItem_shutdown});
             this.关机选项ToolStripMenuItem.Name = "关机选项ToolStripMenuItem";
-            this.关机选项ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.关机选项ToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.关机选项ToolStripMenuItem.Text = "关机选项";
             // 
             // ToolStripMenuItem_LockWorkStation
@@ -141,19 +141,19 @@ namespace udp_turn_off
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(169, 6);
             // 
             // 下一个节日的日期ToolStripMenuItem
             // 
             this.下一个节日的日期ToolStripMenuItem.Name = "下一个节日的日期ToolStripMenuItem";
-            this.下一个节日的日期ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.下一个节日的日期ToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.下一个节日的日期ToolStripMenuItem.Text = "下一个节日的日期";
             this.下一个节日的日期ToolStripMenuItem.Click += new System.EventHandler(this.下一个节日的日期ToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(169, 6);
             // 
             // 禁用系统休眠ToolStripMenuItem
             // 
@@ -162,7 +162,7 @@ namespace udp_turn_off
             this.ToolStripMenuItem_DisplaySleep,
             this.ToolStripMenuItem_SystemSleep});
             this.禁用系统休眠ToolStripMenuItem.Name = "禁用系统休眠ToolStripMenuItem";
-            this.禁用系统休眠ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.禁用系统休眠ToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.禁用系统休眠ToolStripMenuItem.Text = "禁用系统休眠";
             // 
             // ToolStripMenuItem_PauseSleep
@@ -187,31 +187,31 @@ namespace udp_turn_off
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(177, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(169, 6);
             // 
             // 设置ToolStripMenuItem
             // 
             this.设置ToolStripMenuItem.Name = "设置ToolStripMenuItem";
-            this.设置ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.设置ToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.设置ToolStripMenuItem.Text = "设置";
             this.设置ToolStripMenuItem.Click += new System.EventHandler(this.设置ToolStripMenuItem_Click);
             // 
             // ToolStripMenuItem_PowerOn
             // 
             this.ToolStripMenuItem_PowerOn.Name = "ToolStripMenuItem_PowerOn";
-            this.ToolStripMenuItem_PowerOn.Size = new System.Drawing.Size(180, 22);
+            this.ToolStripMenuItem_PowerOn.Size = new System.Drawing.Size(172, 22);
             this.ToolStripMenuItem_PowerOn.Text = "开机启动";
             this.ToolStripMenuItem_PowerOn.Click += new System.EventHandler(this.ToolStripMenuItem_PowerOn_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(169, 6);
             // 
             // 退出ToolStripMenuItem
             // 
             this.退出ToolStripMenuItem.Name = "退出ToolStripMenuItem";
-            this.退出ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.退出ToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.退出ToolStripMenuItem.Text = "退出";
             this.退出ToolStripMenuItem.Click += new System.EventHandler(this.退出ToolStripMenuItem_Click);
             // 

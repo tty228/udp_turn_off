@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -54,6 +55,7 @@ namespace udp_turn_off
             gHoliday.Add("1224", "平安夜");
             gHoliday.Add("1225", "圣诞节");
             gHoliday.Add("1226", "毛泽东诞辰纪念日");
+            add(gHoliday, "gHoliday"); //添加自定义日期提醒
 
             //农历节日
             nHoliday.Add("0101", "春节");
@@ -64,6 +66,7 @@ namespace udp_turn_off
             nHoliday.Add("0815", "中秋节");
             nHoliday.Add("0909", "重阳节");
             nHoliday.Add("1208", "腊八节");
+            add(nHoliday, "nHoliday"); //添加自定义日期提醒
 
             //公历5月第2个周日是母亲节
             //new WeekHolidayStruct(5, 2, 1, "母亲节"), 
@@ -75,6 +78,7 @@ namespace udp_turn_off
             wHoliday.Add("050207", "母亲节");
             wHoliday.Add("060307", "父亲节");
             wHoliday.Add("110404", "感恩节");
+            add(wHoliday, "wHoliday"); //添加自定义日期提醒
 
             //节日祝福语
             Blessings.Add("元旦", "新年新气象，来年更辉煌，让我们再一次踏上征程！");
@@ -142,7 +146,29 @@ namespace udp_turn_off
             Blessings.Add("节气：小雪", "小雪，进入该节气，中国广大地区西北风开始成为常客，气温下降，逐渐降到 0℃以下，但大地尚未过于寒冷，虽开始降雪，但雪量不大，故称小雪。");
             Blessings.Add("节气：大雪", "大雪，标志着仲冬时节的正式开始。大雪的意思是天气更冷，降雪的可能性比小雪时更大了，并不指降雪量一定很大。");
             Blessings.Add("节气：冬至", "冬至，被视为冬季的大节日，又被称为 “小年”，是冬季祭祖大节，古人视为吉日，认为自冬至起，天地阳气开始兴作渐强，曰：冬至一阳生。");
+
+            void add(Hashtable Holiday, string key)
+            {
+                key = "Software\\tty228\\udp_turn_off\\" + key;
+                RegistryKey Root_key = Registry.CurrentUser;
+                Regedit.Save(key, "");//必须创建 项 或判断是否存在，不然会报错
+                RegistryKey sleep = Root_key.OpenSubKey(key);
+                //不能使用 Save(key, software)，会创建空值覆盖原数据，需要判断是否存在
+                string[] subkeyNames;
+                subkeyNames = sleep.GetValueNames();
+                //取得该项下所有键值的名称的序列，并传递给预定的数组中
+                int i = 0;
+                foreach (string keyName in subkeyNames)
+                {
+                    List<string> strList = sleep.GetValue(keyName).ToString().Split('_').ToList();
+                    Holiday.Add(subkeyNames[i], strList[0]);
+                    Blessings.Add(strList[0], strList[1]);
+                    i++;
+                }
+                sleep.Close();
+            }
         }
+
         #endregion
 
         #region 农历获取
