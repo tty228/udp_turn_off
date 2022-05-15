@@ -160,7 +160,9 @@ namespace udp_turn_off
                 int i = 0;
                 foreach (string keyName in subkeyNames)
                 {
+                    
                     List<string> strList = sleep.GetValue(keyName).ToString().Split('_').ToList();
+                    if (gHoliday.Contains(subkeyNames[i])) gHoliday.Remove(subkeyNames[i]);
                     Holiday.Add(subkeyNames[i], strList[0]);
                     if (strList.Count > 1) Blessings.Add(strList[0], strList[1]);
                     i++;
