@@ -47,7 +47,7 @@ namespace udp_turn_off
             this.ToolStripMenuItem_SystemSleep = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.设置ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.开机启动ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ToolStripMenuItem_PowerOn = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.退出ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
@@ -93,7 +93,7 @@ namespace udp_turn_off
             this.禁用系统休眠ToolStripMenuItem,
             this.toolStripMenuItem2,
             this.设置ToolStripMenuItem,
-            this.开机启动ToolStripMenuItem,
+            this.ToolStripMenuItem_PowerOn,
             this.toolStripSeparator1,
             this.退出ToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
@@ -113,28 +113,28 @@ namespace udp_turn_off
             // ToolStripMenuItem_LockWorkStation
             // 
             this.ToolStripMenuItem_LockWorkStation.Name = "ToolStripMenuItem_LockWorkStation";
-            this.ToolStripMenuItem_LockWorkStation.Size = new System.Drawing.Size(180, 22);
+            this.ToolStripMenuItem_LockWorkStation.Size = new System.Drawing.Size(100, 22);
             this.ToolStripMenuItem_LockWorkStation.Text = "锁定";
             this.ToolStripMenuItem_LockWorkStation.Click += new System.EventHandler(this.ToolStripMenuItem_LockWorkStation_Click);
             // 
             // ToolStripMenuItem_sleep
             // 
             this.ToolStripMenuItem_sleep.Name = "ToolStripMenuItem_sleep";
-            this.ToolStripMenuItem_sleep.Size = new System.Drawing.Size(180, 22);
+            this.ToolStripMenuItem_sleep.Size = new System.Drawing.Size(100, 22);
             this.ToolStripMenuItem_sleep.Text = "睡眠";
             this.ToolStripMenuItem_sleep.Click += new System.EventHandler(this.ToolStripMenuItem_sleep_Click);
             // 
             // ToolStripMenuItem_dormancy
             // 
             this.ToolStripMenuItem_dormancy.Name = "ToolStripMenuItem_dormancy";
-            this.ToolStripMenuItem_dormancy.Size = new System.Drawing.Size(180, 22);
+            this.ToolStripMenuItem_dormancy.Size = new System.Drawing.Size(100, 22);
             this.ToolStripMenuItem_dormancy.Text = "休眠";
             this.ToolStripMenuItem_dormancy.Click += new System.EventHandler(this.ToolStripMenuItem_dormancy_Click);
             // 
             // ToolStripMenuItem_shutdown
             // 
             this.ToolStripMenuItem_shutdown.Name = "ToolStripMenuItem_shutdown";
-            this.ToolStripMenuItem_shutdown.Size = new System.Drawing.Size(180, 22);
+            this.ToolStripMenuItem_shutdown.Size = new System.Drawing.Size(100, 22);
             this.ToolStripMenuItem_shutdown.Text = "关机";
             this.ToolStripMenuItem_shutdown.Click += new System.EventHandler(this.ToolStripMenuItem_shutdown_Click);
             // 
@@ -196,12 +196,12 @@ namespace udp_turn_off
             this.设置ToolStripMenuItem.Text = "设置";
             this.设置ToolStripMenuItem.Click += new System.EventHandler(this.设置ToolStripMenuItem_Click);
             // 
-            // 开机启动ToolStripMenuItem
+            // ToolStripMenuItem_PowerOn
             // 
-            this.开机启动ToolStripMenuItem.Name = "开机启动ToolStripMenuItem";
-            this.开机启动ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.开机启动ToolStripMenuItem.Text = "开机启动";
-            this.开机启动ToolStripMenuItem.Click += new System.EventHandler(this.开机启动ToolStripMenuItem_Click);
+            this.ToolStripMenuItem_PowerOn.Name = "ToolStripMenuItem_PowerOn";
+            this.ToolStripMenuItem_PowerOn.Size = new System.Drawing.Size(180, 22);
+            this.ToolStripMenuItem_PowerOn.Text = "开机启动";
+            this.ToolStripMenuItem_PowerOn.Click += new System.EventHandler(this.ToolStripMenuItem_PowerOn_Click);
             // 
             // toolStripSeparator1
             // 
@@ -382,7 +382,7 @@ namespace udp_turn_off
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem 设置ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 开机启动ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ToolStripMenuItem_PowerOn;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Button button4;
         public System.Windows.Forms.NotifyIcon notifyIcon1;

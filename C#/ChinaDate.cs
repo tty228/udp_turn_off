@@ -8,6 +8,7 @@ namespace udp_turn_off
 {
     internal class ChinaDate
     {
+        #region 参数和变量
         private static ChineseLunisolarCalendar china = new ChineseLunisolarCalendar();
         private static Hashtable gHoliday = new Hashtable();
         private static Hashtable nHoliday = new Hashtable();
@@ -16,7 +17,9 @@ namespace udp_turn_off
         private static readonly string[] JQ = { "节气：小寒", "节气：大寒", "节气：立春", "节气：雨水", "节气：惊蛰", "节气：春分", "节气：清明", "节气：谷雨", "节气：立夏", "节气：小满", "节气：芒种", "节气：夏至", "节气：小暑", "节气：大暑", "节气：立秋", "节气：处暑", "节气：白露", "节气：秋分", "节气：寒露", "节气：霜降", "节气：立冬", "节气：小雪", "节气：大雪", "节气：冬至" };
         private static readonly int[] JQData = { 0, 21208, 42467, 63836, 85337, 107014, 128867, 150921, 173149, 195551, 218072, 240693, 263343, 285989, 308563, 331033, 353350, 375494, 397447, 419210, 440795, 462224, 483532, 504758 };
         //readonly 使字段只读
+        #endregion
 
+        #region 节日信息及祝福语
         static ChinaDate()
         {
             //公历节日
@@ -140,7 +143,9 @@ namespace udp_turn_off
             Blessings.Add("节气：大雪", "大雪，标志着仲冬时节的正式开始。大雪的意思是天气更冷，降雪的可能性比小雪时更大了，并不指降雪量一定很大。");
             Blessings.Add("节气：冬至", "冬至，被视为冬季的大节日，又被称为 “小年”，是冬季祭祖大节，古人视为吉日，认为自冬至起，天地阳气开始兴作渐强，曰：冬至一阳生。");
         }
+        #endregion
 
+        #region 农历获取
         /// <summary>
         /// 获取农历
         /// </summary>
@@ -251,7 +256,9 @@ namespace udp_turn_off
             }
             return strDay;
         }
+        #endregion
 
+        #region 节日获取
         /// <summary>
         /// 获取节气
         /// </summary>
@@ -413,7 +420,9 @@ namespace udp_turn_off
 
             return strReturn;
         }
+        #endregion
 
+        #region 祝福语获取
         /// <summary>
         /// 字符获取节日祝福语
         /// </summary>
@@ -475,6 +484,12 @@ namespace udp_turn_off
 
             return strReturn;
         }
+        #endregion
+
+        #region 欢迎语
+        /// <summary>
+        /// 生成气泡信息
+        /// </summary>
         public static string logo()
         {
             //MessageBox.Show (DateTime.Now.ToString("HH"));
@@ -544,7 +559,7 @@ namespace udp_turn_off
             }
             return logo;
         }
-
+        #endregion
     }
 
 }

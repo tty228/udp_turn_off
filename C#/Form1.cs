@@ -20,7 +20,13 @@ namespace udp_turn_off
     //https://github.com/tty228
     public partial class Form1 : Form
     {
+
+        #region 参数和变量
+
         string[] args;
+        string serviceFolderPath = @"C:\Program Files\udp_turn_off\";
+        string serviceFilePath = @"C:\Program Files\udp_turn_off\udp_turn_off_Service.exe";
+        string serviceName = "udp_turn_off_Service";
         public static Form1 frm1;//一个类中调用另一个窗体的控件
         public Form1(string[] args)//检测启动参数
         {
@@ -28,11 +34,13 @@ namespace udp_turn_off
             InitializeComponent();
             frm1 = this;//一个类中调用另一个窗体的控件
         }
+        #endregion
 
-        private void Start_Logo()
+        #region 初始化及启动相关
+        public Form1()
         {
-            notifyIcon1.ShowBalloonTip(10000, "软件已启动", "现在是：" + DateTime.Now.ToString("MM/dd dddd HH:mm:ss") + "\r\n" + ChinaDate.logo(), ToolTipIcon.None);
-            //None（无）、Info（蓝色感叹号）、Warnning（黄色感叹号）、Error（小红叉）
+            CheckForIllegalCrossThreadCalls = false;
+            InitializeComponent();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -43,14 +51,20 @@ namespace udp_turn_off
             //notifyIcon1.MouseDoubleClick += new MouseEventHandler(NotifyIcon1_MouseDoubleClick);
             //notifyIcon1.Visible = true;
 
+            //更改托盘图标
             Icon = Properties.Resources._001;
-            notifyIcon1.Icon = Properties.Resources._001; //更改托盘图标
-            EnableElevateIcon_BCM_SETSHIELD(button4); //按钮显示 UAC 小盾牌
-            Start_Logo(); //气泡logo
+            notifyIcon1.Icon = Properties.Resources._001;
 
-            if (this.IsServiceExisted(serviceName) && this.ServiceIsRunning(serviceName)) this.ServiceStop(serviceName); //如果服务存在且在运行，关闭它，避免端口冲突
+            //按钮显示 UAC 小盾牌
+            EnableElevateIcon_BCM_SETSHIELD(button4);
 
-            //初始化设置
+            //气泡logo
+            Start_Logo(); 
+
+            //如果服务存在且在运行，关闭它，避免端口冲突
+            if (this.IsServiceExisted(serviceName) && this.ServiceIsRunning(serviceName)) this.ServiceStop(serviceName); 
+
+            //初始化窗体按钮选项
             if (Regedit.Read("Software\\tty228\\udp_turn_off", "countdown", "") == "" || Regedit.Read("Software\\tty228\\udp_turn_off", "port", "") == "" || Regedit.Read("Software\\tty228\\udp_turn_off", "msg", "") == "" || Regedit.Read("Software\\tty228\\udp_turn_off", "Shutdown_Options", "") == "")
             {
                 Button1_Click(null, null);
@@ -82,12 +96,12 @@ namespace udp_turn_off
                 if (Regedit.Read("Software\\Microsoft\\Windows\\CurrentVersion\\Run", "udp_turn_off", "") == "")
                 {
                     checkBox1.Checked = false;
-                    开机启动ToolStripMenuItem.Checked = false;
+                    ToolStripMenuItem_PowerOn.Checked = false;
                 }
                 else
                 {
                     checkBox1.Checked = true;
-                    开机启动ToolStripMenuItem.Checked = true;
+                    ToolStripMenuItem_PowerOn.Checked = true;
                 }
 
                 if (!this.IsServiceExisted(serviceName)) DeleteDirectory(serviceFolderPath);
@@ -118,15 +132,17 @@ namespace udp_turn_off
 
             SystemEvents.PowerModeChanged += OnPowerChange; //监听电源改变事件
             SendMsg("the_computer_is_on");
-            
         }
 
-        public Form1()
+        #endregion
+
+        #region 工具类函数
+
+        private void Start_Logo()
         {
-            CheckForIllegalCrossThreadCalls = false;
-            InitializeComponent();
+            notifyIcon1.ShowBalloonTip(10000, "软件已启动", "现在是：" + DateTime.Now.ToString("MM/dd dddd HH:mm:ss") + "\r\n" + ChinaDate.logo(), ToolTipIcon.None);
+            //None（无）、Info（蓝色感叹号）、Warnning（黄色感叹号）、Error（小红叉）
         }
-
         /// <summary>
         /// 检测UDP端口是否被占用
         /// </summary>
@@ -149,10 +165,14 @@ namespace udp_turn_off
             return inUse;
         }
 
-        //等待网络可用
+        // 等待网络可用
         [DllImport("wininet.dll")]
         private static extern bool InternetGetConnectedState(ref int dwFlag, int dwReserved);
 
+        /// <summary>
+        /// 等待网络可用
+        /// </summary>
+        /// <returns></returns>
         private void Waiting_for_networking()
         {
             System.Int32 dwFlag = new int();
@@ -165,7 +185,7 @@ namespace udp_turn_off
         }
 
         /// <summary>
-        /// 监听UDP端口
+        /// 监听 UDP 数据
         /// </summary>
         private void RecvMsg()
         {
@@ -193,6 +213,7 @@ namespace udp_turn_off
 
         /// <summary>
         /// UDP 发送广播信息
+        /// <param name="Msg"> 需要发送的 string 字符 </param>
         /// </summary>
         public void SendMsg(string Msg)
         {
@@ -302,7 +323,7 @@ namespace udp_turn_off
         }
 
         /// <summary>
-        /// 开启关机倒计时
+        /// 开启关机倒计时窗口
         /// </summary>
         private void Countdown()
         {
@@ -320,28 +341,74 @@ namespace udp_turn_off
             }
         }
 
-        private void ToolStripMenuItem_shutdown_Click(object sender, EventArgs e)
+        // 引用
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(System.Runtime.InteropServices.HandleRef hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+        /// <summary>
+        /// 给 UAC 添加小盾牌
+        /// <param name="ThisButton"> 按钮名称 </param>
+        /// </summary>
+        private void EnableElevateIcon_BCM_SETSHIELD(Button ThisButton)
         {
-            ToolStripMenuItem_shutdown.Checked = true;
-            ToolStripMenuItem_dormancy.Checked = false;
-            ToolStripMenuItem_sleep.Checked = false;
-            ToolStripMenuItem_LockWorkStation.Checked = false;
-            comboBox1.Text = "关机";
-            Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "shutdown", "");
-            Regedit.Save("Software\\WOW6432Node\\tty228\\udp_turn_off", "Shutdown_Options", "shutdown", "LocalMachine");
+            // Input validation, validate that ThisControl is not null
+            if (ThisButton == null)
+            {
+                return;
+            }
+
+            // Define BCM_SETSHIELD locally, declared originally in Commctrl.h
+            uint BCM_SETSHIELD = 0x0000160C;
+
+            // Set button style to the system style
+            ThisButton.FlatStyle = FlatStyle.System;
+
+            // Send the BCM_SETSHIELD message to the button control
+            SendMessage(new System.Runtime.InteropServices.HandleRef(ThisButton, ThisButton.Handle), BCM_SETSHIELD, new IntPtr(0), new IntPtr(1));
         }
 
-        private void ToolStripMenuItem_dormancy_Click(object sender, EventArgs e)
+        /// <summary>
+        /// 删除文件夹（无法删除只读及被占用，只能删除文件夹，待修改）
+        /// <param name="path"> 按钮名称 </param>
+        /// </summary>
+        static void DeleteDirectory(string path)
+        {
+            // 如果文件夹存在则进入目录下
+            if (Directory.Exists(path))
+            {
+                foreach (string p in Directory.GetFileSystemEntries(path))// 返回所有文件及目录
+                {
+                    if (File.Exists(p))
+                    {
+                        File.Delete(p);// 删除文件
+                    }
+                    else
+                    {
+                        DeleteDirectory(p);// 删除子目录
+                    }
+                }
+                Directory.Delete(path, true);// 删除当前空目录
+            }
+        }
+        #endregion
+
+        #region 托盘按钮操作
+
+        /// <summary>
+        /// 托盘关机选项-锁定
+        /// </summary>
+        private void ToolStripMenuItem_LockWorkStation_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem_shutdown.Checked = false;
-            ToolStripMenuItem_dormancy.Checked = true;
+            ToolStripMenuItem_dormancy.Checked = false;
             ToolStripMenuItem_sleep.Checked = false;
-            ToolStripMenuItem_LockWorkStation.Checked = false;
-            comboBox1.Text = "休眠";
-            Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "dormancy", "");
-            Regedit.Save("Software\\WOW6432Node\\tty228\\udp_turn_off", "Shutdown_Options", "dormancy", "LocalMachine");
+            ToolStripMenuItem_LockWorkStation.Checked = true;
+            comboBox1.Text = "锁定";
+            Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "LockWorkStation", "");
         }
 
+        /// <summary>
+        /// 托盘关机选项-睡眠
+        /// </summary>
         private void ToolStripMenuItem_sleep_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem_shutdown.Checked = false;
@@ -353,34 +420,102 @@ namespace udp_turn_off
             Regedit.Save("Software\\WOW6432Node\\tty228\\udp_turn_off", "Shutdown_Options", "sleep", "LocalMachine");
         }
 
-        private void ToolStripMenuItem_LockWorkStation_Click(object sender, EventArgs e)
+        /// <summary>
+        /// 托盘关机选项-休眠
+        /// </summary>
+        private void ToolStripMenuItem_dormancy_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem_shutdown.Checked = false;
-            ToolStripMenuItem_dormancy.Checked = false;
+            ToolStripMenuItem_dormancy.Checked = true;
             ToolStripMenuItem_sleep.Checked = false;
-            ToolStripMenuItem_LockWorkStation.Checked = true;
-            comboBox1.Text = "锁定";
-            Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "LockWorkStation", "");
+            ToolStripMenuItem_LockWorkStation.Checked = false;
+            comboBox1.Text = "休眠";
+            Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "dormancy", "");
+            Regedit.Save("Software\\WOW6432Node\\tty228\\udp_turn_off", "Shutdown_Options", "dormancy", "LocalMachine");
         }
 
-        private void 开机启动ToolStripMenuItem_Click(object sender, EventArgs e)
+        /// <summary>
+        /// 托盘关机选项-关机
+        /// </summary>
+        private void ToolStripMenuItem_shutdown_Click(object sender, EventArgs e)
         {
-            if (开机启动ToolStripMenuItem.Checked == false)
+            ToolStripMenuItem_shutdown.Checked = true;
+            ToolStripMenuItem_dormancy.Checked = false;
+            ToolStripMenuItem_sleep.Checked = false;
+            ToolStripMenuItem_LockWorkStation.Checked = false;
+            comboBox1.Text = "关机";
+            Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "shutdown", "");
+            Regedit.Save("Software\\WOW6432Node\\tty228\\udp_turn_off", "Shutdown_Options", "shutdown", "LocalMachine");
+        }
+
+        /// <summary>
+        /// 托盘选项-开机启动
+        /// </summary>
+        private void ToolStripMenuItem_PowerOn_Click(object sender, EventArgs e)
+        {
+            if (ToolStripMenuItem_PowerOn.Checked == false)
             {
                 checkBox1.Checked = true;
-                开机启动ToolStripMenuItem.Checked = true;
+                ToolStripMenuItem_PowerOn.Checked = true;
                 Regedit.Save("Software\\Microsoft\\Windows\\CurrentVersion\\Run", "udp_turn_off", Process.GetCurrentProcess().MainModule.FileName, "");
             }
             else
             {
                 checkBox1.Checked = false;
-                开机启动ToolStripMenuItem.Checked = false;
+                ToolStripMenuItem_PowerOn.Checked = false;
                 Regedit.Delete("Software\\Microsoft\\Windows\\CurrentVersion\\Run", "udp_turn_off", "");
             }
         }
 
         /// <summary>
-        /// 托盘右键退出
+        /// 托盘选项_暂停屏幕休眠
+        /// </summary>
+        /// <param name="e"></param>
+        private void ToolStripMenuItem_PauseSleep_Click(object sender, EventArgs e)
+        {
+            SystemSleepAPI.ResotreSleep();
+            ToolStripMenuItem_PauseSleep.Checked = true;
+            ToolStripMenuItem_DisplaySleep.Checked = false;
+            ToolStripMenuItem_SystemSleep.Checked = false;
+            //notifyIcon1.Icon = Properties.Resources._002;
+        }
+
+        /// <summary>
+        /// 托盘选项_禁用系统休眠
+        /// </summary>
+        /// <param name="e"></param>
+        private void ToolStripMenuItem_SystemSleep_Click(object sender, EventArgs e)
+        {
+            SystemSleepAPI.SystemSleep();
+            ToolStripMenuItem_PauseSleep.Checked = false;
+            ToolStripMenuItem_SystemSleep.Checked = true;
+            ToolStripMenuItem_DisplaySleep.Checked = false;
+            //NotifyIcon1.Icon = Properties.Resources._001;
+        }
+
+        /// <summary>
+        /// 托盘选项_禁用屏幕休眠
+        /// </summary>
+        /// <param name="e"></param>
+        private void ToolStripMenuItem_DisplaySleep_Click(object sender, EventArgs e)
+        {
+            SystemSleepAPI.DisplaySleep();
+            ToolStripMenuItem_PauseSleep.Checked = false;
+            ToolStripMenuItem_SystemSleep.Checked = false;
+            ToolStripMenuItem_DisplaySleep.Checked = true;
+            //NotifyIcon1.Icon = Properties.Resources._001;
+        }
+
+        /// <summary>
+        /// 托盘选项_下一个节日
+        /// </summary>
+        private void 下一个节日的日期ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(ChinaDate.NextDay(DateTime.Now));
+        }
+
+        /// <summary>
+        /// 托盘点击_右键单击
         /// </summary>
         private void 退出ToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -399,9 +534,8 @@ namespace udp_turn_off
         public static extern IntPtr SetActiveWindow(IntPtr hWnd);
 
         /// <summary>
-        /// 双击托盘显示设置窗体
+        /// 托盘点击_左键双击
         /// </summary>
-        /// void notifyIcon_BalloonTipClicked(object sender, EventArgs e)
         private void NotifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             this.Opacity = 100;
@@ -416,7 +550,9 @@ namespace udp_turn_off
             }
         }
 
-        //监听气泡点击
+        /// <summary>
+        /// 托盘_监听气泡点击
+        /// </summary>
         void notifyIcon_BalloonTipClicked(object sender, EventArgs e)
         {
             MessageBox.Show(ChinaDate.logo());
@@ -427,16 +563,9 @@ namespace udp_turn_off
             NotifyIcon1_MouseDoubleClick(null, null);
         }
 
-        /// <summary>
-        /// 下一个节日--点击行为
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void 下一个节日的日期ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show(ChinaDate.NextDay(DateTime.Now));
-        }
+        #endregion
 
+        #region 窗体按钮操作
         //窗体关闭事件
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -462,7 +591,82 @@ namespace udp_turn_off
             ToolStripMenuItem_shutdown_Click(null, null);
             checkBox1.Checked = false;
         }
+        /// <summary>
+        /// 保存设置
+        /// </summary>
+        private void Button2_Click(object sender, EventArgs e)
+        {
+            Regedit.Save("Software\\tty228\\udp_turn_off", "countdown", textBox1.Text, "");
+            Regedit.Save("Software\\tty228\\udp_turn_off", "port", textBox2.Text, "");
+            Regedit.Save("Software\\tty228\\udp_turn_off", "msg", textBox3.Text, "");
 
+            Regedit.Save(@"Software\\WOW6432Node\\tty228\\udp_turn_off", "port", textBox2.Text, "LocalMachine");
+            Regedit.Save(@"Software\\WOW6432Node\\tty228\\udp_turn_off", "msg", textBox3.Text, "LocalMachine");
+
+            switch (comboBox1.Text)
+            {
+                case "关机":
+                    ToolStripMenuItem_shutdown_Click(null, null);
+                    break;
+                case "休眠":
+                    ToolStripMenuItem_dormancy_Click(null, null);
+                    break;
+                case "睡眠":
+                    ToolStripMenuItem_sleep_Click(null, null);
+                    break;
+                case "锁定":
+                    ToolStripMenuItem_LockWorkStation_Click(null, null);
+                    break;
+                default:
+                    ToolStripMenuItem_shutdown_Click(null, null);
+                    break;
+            }
+            if (checkBox1.Checked != ToolStripMenuItem_PowerOn.Checked)
+            {
+                ToolStripMenuItem_PowerOn_Click(null, null);
+            }
+            notifyIcon1.Visible = false;
+            Application.Restart();
+            //Form1_Load(null, null);
+        }
+
+        /// <summary>
+        /// 关于
+        /// </summary>
+        private void Button3_Click(object sender, EventArgs e)
+        {
+            AboutBox1 about_box = new AboutBox1();
+            about_box.Show(this);
+        }
+
+        /// <summary>
+        /// 服务注册或关闭
+        /// </summary>
+        private void Button4_Click(object sender, EventArgs e)
+        {
+            if (this.IsServiceExisted(serviceName))
+            {
+                Disable_Service();
+                MessageBox.Show("服务已关闭");
+                button4.Text = "注册为服务";
+                checkBox1.Checked = false;
+                ToolStripMenuItem_PowerOn.Checked = false;
+                Button2_Click(null, null);
+            }
+            else
+            {
+                Enable_Service();
+                MessageBox.Show("服务已注册");
+                button4.Text = "关闭服务";
+                checkBox1.Checked = true;
+                ToolStripMenuItem_PowerOn.Checked = true;
+                Button2_Click(null, null);
+            }
+        }
+
+        #endregion
+
+        #region 输入框限制输入
         /// <summary>
         /// 限制输入（只能输入数字）
         /// </summary>
@@ -515,99 +719,11 @@ namespace udp_turn_off
             textBox2.SelectionStart = textBox2.Text.Length;
         }
 
-        /// <summary>
-        /// 保存设置
-        /// </summary>
-        private void Button2_Click(object sender, EventArgs e)
-        {
-            Regedit.Save("Software\\tty228\\udp_turn_off", "countdown", textBox1.Text, "");
-            Regedit.Save("Software\\tty228\\udp_turn_off", "port", textBox2.Text, "");
-            Regedit.Save("Software\\tty228\\udp_turn_off", "msg", textBox3.Text, "");
+        #endregion
 
-            Regedit.Save(@"Software\\WOW6432Node\\tty228\\udp_turn_off", "port", textBox2.Text, "LocalMachine");
-            Regedit.Save(@"Software\\WOW6432Node\\tty228\\udp_turn_off", "msg", textBox3.Text, "LocalMachine");
+        #region Windows 服务类操作
 
-            switch (comboBox1.Text)
-            {
-                case "关机":
-                    ToolStripMenuItem_shutdown_Click(null, null);
-                    break;
-                case "休眠":
-                    ToolStripMenuItem_dormancy_Click(null, null);
-                    break;
-                case "睡眠":
-                    ToolStripMenuItem_sleep_Click(null, null);
-                    break;
-                case "锁定":
-                    ToolStripMenuItem_LockWorkStation_Click(null, null);
-                    break;
-                default:
-                    ToolStripMenuItem_shutdown_Click(null, null);
-                    break;
-            }
-            if (checkBox1.Checked != 开机启动ToolStripMenuItem.Checked)
-            {
-                开机启动ToolStripMenuItem_Click(null, null);
-            }
-            notifyIcon1.Visible = false;
-            Application.Restart();
-            //Form1_Load(null, null);
-            
-        }
 
-        /// <summary>
-        /// 右下角菜单_暂停屏幕休眠--点击行为
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ToolStripMenuItem_PauseSleep_Click(object sender, EventArgs e)
-        {
-            SystemSleepAPI.ResotreSleep();
-            ToolStripMenuItem_PauseSleep.Checked = true;
-            ToolStripMenuItem_DisplaySleep.Checked = false;
-            ToolStripMenuItem_SystemSleep.Checked = false;
-            //notifyIcon1.Icon = Properties.Resources._002;
-        }
-
-        /// <summary>
-        /// 右下角菜单_禁用系统休眠--点击行为
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ToolStripMenuItem_SystemSleep_Click(object sender, EventArgs e)
-        {
-            SystemSleepAPI.SystemSleep();
-            ToolStripMenuItem_PauseSleep.Checked = false;
-            ToolStripMenuItem_SystemSleep.Checked = true;
-            ToolStripMenuItem_DisplaySleep.Checked = false;
-            //NotifyIcon1.Icon = Properties.Resources._001;
-        }
-
-        /// <summary>
-        /// 右下角菜单_禁用屏幕休眠--点击行为
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ToolStripMenuItem_DisplaySleep_Click(object sender, EventArgs e)
-        {
-            SystemSleepAPI.DisplaySleep();
-            ToolStripMenuItem_PauseSleep.Checked = false;
-            ToolStripMenuItem_SystemSleep.Checked = false;
-            ToolStripMenuItem_DisplaySleep.Checked = true;
-            //NotifyIcon1.Icon = Properties.Resources._001;
-        }
-
-        /// <summary>
-        /// 关于
-        /// </summary>
-        private void Button3_Click(object sender, EventArgs e)
-        {
-            AboutBox1 about_box = new AboutBox1();
-            about_box.Show(this);
-        }
-        string serviceFolderPath = @"C:\Program Files\udp_turn_off\";
-        string serviceFilePath = @"C:\Program Files\udp_turn_off\udp_turn_off_Service.exe";
-        string serviceName = "udp_turn_off_Service";
 
         /// <summary>
         /// 判断服务是否存在
@@ -734,69 +850,7 @@ namespace udp_turn_off
             }
         }
 
-        //删除文件夹
-        static void DeleteDirectory(string path)
-        {
-            // 如果文件夹存在则进入目录下
-            if (Directory.Exists(path))
-            {
-                foreach (string p in Directory.GetFileSystemEntries(path))// 返回所有文件及目录
-                {
-                    if (File.Exists(p))
-                    {
-                        File.Delete(p);// 删除文件
-                    }
-                    else
-                    {
-                        DeleteDirectory(p);// 删除子目录
-                    }
-                }
-                Directory.Delete(path, true);// 删除当前空目录
-            }
-        }
+        #endregion
 
-        // 给 UAC 添加小盾牌
-        private void EnableElevateIcon_BCM_SETSHIELD(Button ThisButton)
-        {
-            // Input validation, validate that ThisControl is not null
-            if (ThisButton == null)
-            {
-                return;
-            }
-
-            // Define BCM_SETSHIELD locally, declared originally in Commctrl.h
-            uint BCM_SETSHIELD = 0x0000160C;
-
-            // Set button style to the system style
-            ThisButton.FlatStyle = FlatStyle.System;
-
-            // Send the BCM_SETSHIELD message to the button control
-            SendMessage(new System.Runtime.InteropServices.HandleRef(ThisButton, ThisButton.Handle), BCM_SETSHIELD, new IntPtr(0), new IntPtr(1));
-        }
-
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        private static extern IntPtr SendMessage(System.Runtime.InteropServices.HandleRef hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
-
-        private void Button4_Click(object sender, EventArgs e)
-        {
-            if (this.IsServiceExisted(serviceName))
-            {
-                Disable_Service();
-                MessageBox.Show("服务已关闭");
-                button4.Text = "注册为服务";
-                checkBox1.Checked = false;
-                开机启动ToolStripMenuItem.Checked = false;
-                Button2_Click(null, null);
-            }
-            else
-            {
-                Enable_Service();
-                MessageBox.Show("服务已注册");
-                button4.Text = "关闭服务";
-                checkBox1.Checked = true;
-                开机启动ToolStripMenuItem.Checked = true;
-                Button2_Click(null, null);
-            }
-        }
     }
 }
