@@ -162,7 +162,7 @@ namespace udp_turn_off
                 {
                     List<string> strList = sleep.GetValue(keyName).ToString().Split('_').ToList();
                     Holiday.Add(subkeyNames[i], strList[0]);
-                    Blessings.Add(strList[0], strList[1]);
+                    if (strList.Count > 1) Blessings.Add(strList[0], strList[1]);
                     i++;
                 }
                 sleep.Close();
