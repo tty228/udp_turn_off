@@ -51,12 +51,12 @@ namespace udp_turn_off
             //notifyIcon1.MouseDoubleClick += new MouseEventHandler(NotifyIcon1_MouseDoubleClick);
             //notifyIcon1.Visible = true;
 
-            //更改托盘图标
+                //更改托盘图标
             Icon = Properties.Resources._001;
             notifyIcon1.Icon = Properties.Resources._001;
 
             //按钮显示 UAC 小盾牌
-            EnableElevateIcon_BCM_SETSHIELD(button4);
+            AddShieldToButton(button4);
 
             //气泡logo
             Start_Logo(); 
@@ -103,9 +103,7 @@ namespace udp_turn_off
                     checkBox1.Checked = true;
                     ToolStripMenuItem_PowerOn.Checked = true;
                 }
-
-                if (!this.IsServiceExisted(serviceName)) DeleteDirectory(serviceFolderPath);
-
+                if (IsAdministrator() && !this.IsServiceExisted(serviceName)) DeleteDirectory(serviceFolderPath);
             }
 
             //等待服务端口关闭
@@ -348,7 +346,7 @@ namespace udp_turn_off
         /// 给 UAC 添加小盾牌
         /// <param name="ThisButton"> 按钮名称 </param>
         /// </summary>
-        private void EnableElevateIcon_BCM_SETSHIELD(Button ThisButton)
+        private void AddShieldToButton(Button ThisButton)
         {
             // Input validation, validate that ThisControl is not null
             if (ThisButton == null)
@@ -367,13 +365,42 @@ namespace udp_turn_off
         }
 
         /// <summary>
+        /// 获取管理员权限
+        /// </summary>
+        private void getUAC()
+        {
+            ProcessStartInfo psi = new ProcessStartInfo();
+            psi.UseShellExecute = true;
+            psi.Verb = "runas";
+            psi.FileName = Application.ExecutablePath;
+            try
+            {
+                // 获取管理员权限并重启
+                Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("启动程序时失败！\r\n失败原因：" + ex.Message, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+        }
+
+        /// <summary>
+        /// 判断管理员权限
+        /// </summary>
+        private bool IsAdministrator()
+        {
+            System.Security.Principal.WindowsPrincipal wp = new System.Security.Principal.WindowsPrincipal(System.Security.Principal.WindowsIdentity.GetCurrent());
+            return (wp.IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator));
+        }
+
+        /// <summary>
         /// 删除文件夹（无法删除只读及被占用，只能删除文件夹，待修改）
         /// <param name="path"> 按钮名称 </param>
         /// </summary>
         static void DeleteDirectory(string path)
         {
-            // 如果文件夹存在则进入目录下
-            if (Directory.Exists(path))
+                // 如果文件夹存在则进入目录下
+                if (Directory.Exists(path))
             {
                 foreach (string p in Directory.GetFileSystemEntries(path))// 返回所有文件及目录
                 {
@@ -389,6 +416,8 @@ namespace udp_turn_off
                 Directory.Delete(path, true);// 删除当前空目录
             }
         }
+
+
         #endregion
 
         #region 托盘按钮操作
@@ -417,7 +446,7 @@ namespace udp_turn_off
             ToolStripMenuItem_LockWorkStation.Checked = false;
             comboBox1.Text = "睡眠";
             Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "sleep", "");
-            Regedit.Save("Software\\WOW6432Node\\tty228\\udp_turn_off", "Shutdown_Options", "sleep", "LocalMachine");
+            if (IsAdministrator()) Regedit.Save("Software\\WOW6432Node\\tty228\\udp_turn_off", "Shutdown_Options", "sleep", "LocalMachine");
         }
 
         /// <summary>
@@ -431,7 +460,7 @@ namespace udp_turn_off
             ToolStripMenuItem_LockWorkStation.Checked = false;
             comboBox1.Text = "休眠";
             Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "dormancy", "");
-            Regedit.Save("Software\\WOW6432Node\\tty228\\udp_turn_off", "Shutdown_Options", "dormancy", "LocalMachine");
+            if (IsAdministrator()) Regedit.Save("Software\\WOW6432Node\\tty228\\udp_turn_off", "Shutdown_Options", "dormancy", "LocalMachine");
         }
 
         /// <summary>
@@ -445,7 +474,7 @@ namespace udp_turn_off
             ToolStripMenuItem_LockWorkStation.Checked = false;
             comboBox1.Text = "关机";
             Regedit.Save("Software\\tty228\\udp_turn_off", "Shutdown_Options", "shutdown", "");
-            Regedit.Save("Software\\WOW6432Node\\tty228\\udp_turn_off", "Shutdown_Options", "shutdown", "LocalMachine");
+            if (IsAdministrator()) Regedit.Save("Software\\WOW6432Node\\tty228\\udp_turn_off", "Shutdown_Options", "shutdown", "LocalMachine");
         }
 
         /// <summary>
@@ -596,12 +625,14 @@ namespace udp_turn_off
         /// </summary>
         private void Button2_Click(object sender, EventArgs e)
         {
+
             Regedit.Save("Software\\tty228\\udp_turn_off", "countdown", textBox1.Text, "");
             Regedit.Save("Software\\tty228\\udp_turn_off", "port", textBox2.Text, "");
             Regedit.Save("Software\\tty228\\udp_turn_off", "msg", textBox3.Text, "");
 
-            Regedit.Save(@"Software\\WOW6432Node\\tty228\\udp_turn_off", "port", textBox2.Text, "LocalMachine");
-            Regedit.Save(@"Software\\WOW6432Node\\tty228\\udp_turn_off", "msg", textBox3.Text, "LocalMachine");
+
+            if (IsAdministrator()) Regedit.Save(@"Software\\WOW6432Node\\tty228\\udp_turn_off", "port", textBox2.Text, "LocalMachine");
+            if (IsAdministrator()) Regedit.Save(@"Software\\WOW6432Node\\tty228\\udp_turn_off", "msg", textBox2.Text, "LocalMachine");
 
             switch (comboBox1.Text)
             {
@@ -646,6 +677,8 @@ namespace udp_turn_off
         {
             if (this.IsServiceExisted(serviceName))
             {
+                // 关闭服务
+                if (!IsAdministrator()) getUAC();
                 Disable_Service();
                 MessageBox.Show("服务已关闭");
                 button4.Text = "注册为服务";
@@ -655,6 +688,8 @@ namespace udp_turn_off
             }
             else
             {
+                // 开启服务
+                if (!IsAdministrator()) getUAC();
                 Enable_Service();
                 MessageBox.Show("服务已注册");
                 button4.Text = "关闭服务";
@@ -851,6 +886,5 @@ namespace udp_turn_off
         }
 
         #endregion
-
     }
 }

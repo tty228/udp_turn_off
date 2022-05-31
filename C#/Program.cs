@@ -22,9 +22,9 @@ namespace udp_turn_off
                 Process instance = RunningInstance();
                 if (instance == null)
                 {
-                    System.Windows.Forms.Application.EnableVisualStyles();
-                    System.Windows.Forms.Application.DoEvents();
-                    System.Windows.Forms.Application.Run(new Form1(args));
+                    Application.EnableVisualStyles();
+                    Application.DoEvents();
+                    Application.Run(new Form1(args));
                 }
                 else
                 {
