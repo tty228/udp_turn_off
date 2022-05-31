@@ -572,6 +572,7 @@ namespace udp_turn_off
             if (this.IsServiceExisted(serviceName))
             {
                 button4.Text = "关闭服务";
+                if (!IsAdministrator()) getUAC();
             }
             else
             {
